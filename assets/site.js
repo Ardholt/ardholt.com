@@ -48,8 +48,12 @@
 
   if(fine){
     document.querySelectorAll('.magnet').forEach(function(m){
-      m.addEventListener('mousemove',function(e){if(!motionOn())return;var r=m.getBoundingClientRect();var dx=e.clientX-(r.left+r.width/2),dy=e.clientY-(r.top+r.height/2);m.style.transform='translate('+(dx*.18)+'px,'+(dy*.28)+'px)';m.style.transition='transform .15s'});
-      m.addEventListener('mouseleave',function(){m.style.transition='transform .6s cubic-bezier(.16,1,.3,1)';m.style.transform=''});
+      /* the pill follows the pointer gently: measured from its resting box (not the moved one), eased each frame */
+      var rest=null,tx=0,ty=0,cx=0,cy=0,raf=0,over=false;
+      function tick(){cx+=(tx-cx)*.12;cy+=(ty-cy)*.12;m.style.transform='translate3d('+cx.toFixed(2)+'px,'+cy.toFixed(2)+'px,0)';if(Math.abs(tx-cx)>.05||Math.abs(ty-cy)>.05||over)raf=requestAnimationFrame(tick);else{raf=0;m.style.transform='';m.style.transition=''}}
+      m.addEventListener('mouseenter',function(){over=true;m.style.transform='';rest=m.getBoundingClientRect();m.style.transition='none';if(!raf)raf=requestAnimationFrame(tick)});
+      m.addEventListener('mousemove',function(e){if(!motionOn()||!rest)return;var dx=e.clientX-(rest.left+rest.width/2),dy=e.clientY-(rest.top+rest.height/2);tx=Math.max(-14,Math.min(14,dx*.14));ty=Math.max(-10,Math.min(10,dy*.22))});
+      m.addEventListener('mouseleave',function(){over=false;tx=0;ty=0;if(!raf)raf=requestAnimationFrame(tick)});
     });
     document.querySelectorAll('.tilt').forEach(function(c){
       c.addEventListener('mousemove',function(e){if(!motionOn())return;var r=c.getBoundingClientRect();var x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;c.style.transform='perspective(900px) rotateX('+(-y*4)+'deg) rotateY('+(x*5)+'deg) translateY(-2px)';c.style.backgroundColor='rgba(255,255,255,.015)'});
