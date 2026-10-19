@@ -20,7 +20,8 @@
   V.agents=function(t){var names=['PLAN','BUILD','TEST','GATE','SHIP'],xs=names.map(function(_,i){return W*.12+i*W*.19}),y=H*.5;
     ctx.strokeStyle=LINE;ctx.beginPath();ctx.moveTo(xs[0],y);ctx.lineTo(xs[4],y);ctx.stroke();
     xs.forEach(function(x,i){ctx.strokeStyle=i===3?ACC2:INK2;ctx.lineWidth=1;ctx.beginPath();ctx.arc(x,y,14,0,7);ctx.stroke();ctx.fillStyle=MUTE;mono(10);ctx.textAlign='center';ctx.fillText(names[i],x,y+38)});ctx.textAlign='left';
-    for(var p=0;p<3;p++){var tt=(t*.55+p*1.1)%3.3,seg=Math.min(3.999,tt*1.5),rej=(p===1&&seg>2.6&&seg<3.3);var sx;if(rej){var b=(seg-2.6)/.7;sx=xs[3]-(xs[3]-xs[1])*ease(b);ctx.fillStyle=ACC}else{var i=Math.floor(seg),f=seg-i;sx=xs[i]+(xs[Math.min(4,i+1)]-xs[i])*f;ctx.fillStyle=INK}ctx.beginPath();ctx.arc(sx,y+(rej?-26*Math.sin(Math.PI*((seg-2.6)/.7)):0),3,0,7);ctx.fill()}
+    xs.forEach(function(x,i){var busy=(Math.sin(t*2.1+i*1.3)+1)/2;ctx.fillStyle='rgba(241,236,230,'+(.05+busy*.12)+')';ctx.beginPath();ctx.arc(x,y,13,0,7);ctx.fill();for(var k=0;k<3;k++){ctx.fillStyle='rgba(241,236,230,'+(.15+.5*((Math.sin(t*3+i+k*2)+1)/2))+')';ctx.fillRect(x-14+k*10,y+22,6,2)}});
+    for(var p=0;p<5;p++){var tt=(t*.55+p*.66)%3.3,seg=Math.min(3.999,tt*1.5),rej=(p===1&&seg>2.6&&seg<3.3);var sx;if(rej){var b=(seg-2.6)/.7;sx=xs[3]-(xs[3]-xs[1])*ease(b);ctx.fillStyle=ACC}else{var i=Math.floor(seg),f=seg-i;sx=xs[i]+(xs[Math.min(4,i+1)]-xs[i])*f;ctx.fillStyle=INK}ctx.beginPath();ctx.arc(sx,y+(rej?-26*Math.sin(Math.PI*((seg-2.6)/.7)):0),3,0,7);ctx.fill()}
     var pulse=(t%1.65)/1.65;ctx.strokeStyle='rgba(255,59,31,'+(1-pulse)*.5+')';ctx.beginPath();ctx.arc(xs[3],y,14+pulse*26,0,7);ctx.stroke();
     ctx.fillStyle=MUTE;mono(10);ctx.fillText('NOTHING PASSES THE GATE WITHOUT EVIDENCE',W*.08,H*.14);ctx.fillText('HUMAN REACHED ONLY FOR A REAL DECISION',W*.08,H*.14+16)};
   /* 03 knowledge: a field of records; the query lights the nearest cluster */
