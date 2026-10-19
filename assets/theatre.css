@@ -5,7 +5,9 @@
 
 /* header: fixed; once the page leaves the top it compacts onto a quiet glass and carries the scroll progress */
 html{scroll-padding-top:84px}
-.top{position:fixed;transition:padding .45s var(--ease);view-transition-name:th-top}
+.top{position:fixed;transition:padding .45s var(--ease),transform .4s var(--ease);view-transition-name:th-top}
+.top.th-away:not(:focus-within){transform:translateY(-100%)}
+html.th-menu-open .top,html.motion-off .top{transform:none}
 .top::before{content:"";position:absolute;inset:0;z-index:-1;background:rgba(11,10,10,.86);-webkit-backdrop-filter:blur(14px) saturate(1.15);backdrop-filter:blur(14px) saturate(1.15);border-bottom:1px solid var(--line);opacity:0;transition:opacity .45s var(--ease)}
 .top.th-scrolled{padding-top:10px;padding-bottom:10px}
 .top.th-scrolled::before{opacity:1}

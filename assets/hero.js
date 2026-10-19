@@ -148,7 +148,7 @@
     W=cv.clientWidth||1;H=cv.clientHeight||1;cv.width=Math.round(W*DPR);cv.height=Math.round(H*DPR);gl.viewport(0,0,cv.width,cv.height);
     narrow=innerWidth<=840; var g=parseFloat(getComputedStyle(hero).paddingLeft)||24;
     if(narrow){ /* the top band: under the 70px header, above the headline, inside the unmasked top 30% */
-      var top=80, bot=Math.min(H*0.29,(h1?h1.offsetTop:H*0.3)-12); room=bot-top>=90;
+      var top=80, bot=Math.min(H*0.37,(h1?h1.offsetTop:H*0.38)-12); room=bot-top>=90;
       rect={cx:W/2,cy:(top+bot)/2,w:W-2*g,h:Math.max(1,bot-top)};
     }else{ /* the right 55%, the headline at bottom left */
       var x0=W*0.47, x1=W-g, y0=Math.max(H*0.10,80), y1=H*0.86; room=true; rect={cx:(x0+x1)/2,cy:(y0+y1)/2-H*0.025,w:x1-x0,h:y1-y0};
