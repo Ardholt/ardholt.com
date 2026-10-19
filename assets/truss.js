@@ -53,7 +53,7 @@
     var settle=1-0.82*hold; /* stress peaks on landing then settles as the structure carries it */
     var compress=1-0.014*land;
     var ry=(on?Math.sin(t*.2)*.3:.22)+px*.28, rx=-.09+py*.16, m=mat(rx,ry,W/H,compress);
-    var off=W*(innerWidth>840?.17:0); if(innerWidth<=840){m[13]+=0.42*m[15]} var m2=new Float32Array(m); m2[12]+=off/W*2*m2[15]; gl.uniformMatrix4fv(uM,false,m2);
+    var off=W*(innerWidth>840?.17:0); var m2=new Float32Array(m); if(innerWidth<=840){var ms=.68;[0,4,8,12,1,5,9,13].forEach(function(i){m2[i]*=ms});m2[13]+=0.78*m2[15]} m2[12]+=off/W*2*m2[15]; gl.uniformMatrix4fv(uM,false,m2);
     gl.clearColor(0,0,0,0); gl.clear(gl.COLOR_BUFFER_BIT); gl.uniform1i(uR,0);
     var scat=1-easeOut(Math.min(1,born/0.55)); /* members assemble in from a loose cloud */
     function pos(i){var n=nodes[i];var j=(i*7919)%13/13-.5;return [n[0]+j*2.4*scat,n[1]+((i*104729)%11/11-.5)*1.6*scat,n[2]+((i*31)%7/7-.5)*2*scat]}
