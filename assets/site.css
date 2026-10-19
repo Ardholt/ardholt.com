@@ -87,8 +87,8 @@ h2 i{font-style:italic}
 .three .dg{width:56px;height:56px;display:block;margin-bottom:24px;color:var(--ink)}
 .three .n{font-family:var(--mono);font-size:11px;letter-spacing:.2em;color:var(--mute);display:block;margin-bottom:22px}
 .three>div:hover .n{color:var(--acc)}
-.three h3{font-family:var(--serif);font-weight:400;font-size:clamp(30px,2.6vw,40px);line-height:1;margin:0 0 14px;letter-spacing:-.01em}
-.three p{margin:0;color:var(--ink-2);font-size:16.5px;line-height:1.6;max-width:36ch}
+.three h3{font-family:var(--serif);font-weight:400;font-size:clamp(32px,2.8vw,44px);line-height:1;margin:0 0 14px;letter-spacing:-.01em}
+.three p{margin:0;color:var(--ink-2);font-size:17px;line-height:1.6;max-width:36ch}
 
 /* capabilities: pinned stage + steps */
 .caps{padding-top:clamp(96px,12vw,170px);padding-bottom:clamp(40px,6vw,90px);border-top:1px solid var(--line)}
@@ -131,8 +131,8 @@ h2 i{font-style:italic}
 .no-js .steps .progress i,html.motion-off .steps .progress i{transform:none}
 .steps>div:not(.progress){position:relative;padding-top:22px}
 .steps>div:not(.progress)::before{counter-increment:s;content:"0" counter(s);font-family:var(--mono);font-size:11px;letter-spacing:.2em;color:var(--mute);display:block;margin-bottom:34px}
-.steps h3{font-family:var(--sans);font-weight:500;font-size:17px;letter-spacing:-.005em;margin:0 0 10px}
-.steps p{margin:0;color:var(--ink-2);font-size:15.5px;line-height:1.6;max-width:32ch}
+.steps h3{font-family:var(--serif);font-weight:400;font-size:clamp(24px,2vw,30px);line-height:1.05;letter-spacing:-.01em;margin:0 0 12px}
+.steps p{margin:0;color:var(--ink-2);font-size:16px;line-height:1.6;max-width:32ch}
 
 /* contact */
 .contact{padding-top:clamp(110px,14vw,200px);padding-bottom:clamp(110px,14vw,200px)}
@@ -176,7 +176,7 @@ html.capture .rv,html.capture .lines .ln>span{transition:none!important}
   .scrolly{display:block;margin-top:40px}
   .stage{position:sticky;top:64px;height:42vh;z-index:2}
   .step{min-height:0;padding:40px 0 28px;opacity:1}
-  .step h3{font-size:30px}
+  .step .k{font-size:32px}
   .foot .g{grid-template-columns:auto 1fr}.foot .links{grid-column:1/-1;flex-direction:row;flex-wrap:wrap;gap:18px;text-align:left}
 }
 @media(prefers-reduced-motion:reduce){
