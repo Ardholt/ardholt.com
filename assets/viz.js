@@ -7,7 +7,7 @@
   function rnd(seed){var s=seed;return function(){s=(s*9301+49297)%233280;return s/233280}}
   function eio(x){return x<.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2} function eo(x){return 1-Math.pow(1-x,3)}
   function mono(sz){ctx.font=sz+'px "JetBrains Mono",ui-monospace,monospace'} function serif(sz){ctx.font=sz+'px "Instrument Serif",Georgia,serif'}
-  function cap(l,r){mono(10);ctx.textAlign='left';ctx.fillStyle=INK2;ctx.fillText(l,W*.07,H*.09);if(r){ctx.textAlign='right';ctx.fillText(r,W*.93,H*.09);ctx.textAlign='left'}}
+  function cap(l,r){mono(10);ctx.textAlign='left';ctx.fillStyle=INK2;ctx.fillText(l,W*.07,H*.09);if(r){if(W<560){ctx.fillStyle=MUTE;ctx.fillText(r,W*.07,H*.09+15)}else{ctx.textAlign='right';ctx.fillText(r,W*.93,H*.09);ctx.textAlign='left'}}}
   function rr(x,y,w,h,r){ctx.beginPath();ctx.roundRect(x,y,w,h,r);}
   function dot(x,y,r,c){ctx.fillStyle=c;ctx.beginPath();ctx.arc(x,y,r,0,7);ctx.fill()}
   function pad(n,w){var s=String(n);while(s.length<w)s='0'+s;return s}
