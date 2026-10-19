@@ -8,6 +8,8 @@
   var gl=cv.getContext('webgl',{antialias:true,alpha:true,premultipliedAlpha:true,powerPreference:'high-performance'});
   if(!gl) return;
   var hero=cv.parentNode, DPR=Math.min(2,window.devicePixelRatio||1), W=0, H=0, logs=[];
+  /* material: base colour, lift of upward faces, specular power/intensity, softbox intensity, fresnel floor, metal tint, orange spot */
+  var MAT=Object.assign({base:[.102,.094,.094],top:.5,specP:80,specI:.45,boxI:.9,f0:.05,metal:0,orange:0,keyI:3.0},window.ARDHOLT_HERO_MATERIAL||{});
   function motionOn(){return !!(window.ARDHOLT&&window.ARDHOLT.motionOn())}
 
   /* ---------- geometry: a polygon extruded to depth d, with a chamfer c on every edge ---------- */
@@ -62,24 +64,26 @@
     'gl_Position=uVP*w;gl_Position.xy+=uOff*gl_Position.w;}'].join('\n');
   var objFS=PREC+[
     'varying vec3 vP,vN;varying float vE;',
-    'uniform vec3 uEye,uKey;uniform float uAmb,uFloor,uRefl,uFade,uMode;',
+    'uniform vec3 uEye,uKey,uBase;uniform float uAmb,uFloor,uRefl,uFade,uMode,uTop,uSpecP,uSpecI,uBoxI,uF0,uMetal,uOr,uKeyI;',
     'const vec3 BONE=vec3(.945,.925,.902);const vec3 WARM=vec3(1.,.23,.12);',
     'void main(){',
     ' if(uMode<.5&&vP.y<uFloor)discard; if(uMode>.5&&vP.y>uFloor)discard;',
     ' vec3 N=normalize(vN),V=normalize(uEye-vP),L=uKey;',
     ' float ndl=max(dot(N,L),0.),ndv=max(dot(N,V),0.);',
     ' vec3 H=normalize(L+V);float ndh=max(dot(N,H),0.);',
-    ' vec3 base=vec3(.102,.094,.094)*(1.+.5*max(N.y,0.));',                    /* graphite, lighter on top faces */
+    ' vec3 base=uBase*(1.+uTop*max(N.y,0.));vec3 tint=mix(vec3(1.),base/max(max(base.r,base.g),max(base.b,.05)),uMetal);',                    /* graphite, lighter on top faces */
     ' float fall=.58+.42*clamp(dot(vP,L)*.5+.5,0.,1.);',                       /* the key falls off away from the lamp: apex lit, base darker */
     ' vec3 col=base*uAmb*(.55+.45*(N.y*.5+.5));',                              /* ambient from a near-black room */
-    ' col+=base*BONE*3.0*ndl*fall;',                                           /* key: Lambert */
-    ' float F=.05+.95*pow(1.-ndv,5.);',                                        /* Schlick fresnel */
+    ' col+=base*BONE*uKeyI*ndl*fall;',                                           /* key: Lambert */
+    ' float F=uF0+(1.-uF0)*pow(1.-ndv,5.);',                                        /* Schlick fresnel */
     ' vec3 R=reflect(-V,N);float box=smoothstep(.40,.985,dot(R,L));',          /* broad softbox reflection */
-    ' col+=BONE*box*(.10+.9*F)*fall*(1.+.9*vE);',
-    ' col+=BONE*pow(ndh,80.)*.45;',                                            /* the hot spot */
-    ' col+=BONE*F*.22*vE;',                                                    /* chamfers catch the room */
+    ' col+=BONE*tint*box*uBoxI*(.10+.9*F)*fall*(1.+.9*vE);',
+    ' col+=BONE*tint*pow(ndh,uSpecP)*uSpecI;',                                            /* the hot spot */
+    ' col+=BONE*tint*F*.22*vE;',                                                    /* chamfers catch the room */
     ' vec3 Lr=normalize(vec3(.8,-.5,.3));float rim=pow(1.-ndv,3.)*max(dot(N,Lr),0.);',
-    ' col+=WARM*.2*rim*1.5;',                                                  /* warm rim, silhouette only */
+    ' col+=WARM*.2*rim*1.5;',
+    ' vec3 Lo=normalize(vec3(.55,.85,.25));float ndlo=max(dot(N,Lo),0.);vec3 Ho=normalize(Lo+V);',        /* the orange spot: above and to the right */
+    ' col+=WARM*base*2.2*ndlo*uOr;col+=WARM*tint*pow(max(dot(N,Ho),0.),uSpecP*.7)*1.1*uOr;col+=WARM*F*.3*uOr*(.6+.8*vE);',                                                  /* warm rim, silhouette only */
     ' col=1.-exp(-col*1.25);',                                                 /* soft shoulder: highlights roll to bone, never clip */
     ' float a=1.;',
     ' if(uMode>.5){a=uRefl*pow(1.-clamp((uFloor-vP.y)/1.1,0.,1.),1.6);col*=.9;}',
@@ -121,7 +125,7 @@
   function prog(vs,fs,attrs,unis){var p=gl.createProgram();gl.attachShader(p,sh(gl.VERTEX_SHADER,vs));gl.attachShader(p,sh(gl.FRAGMENT_SHADER,fs));gl.linkProgram(p);
     if(!gl.getProgramParameter(p,gl.LINK_STATUS)){logs.push(gl.getProgramInfoLog(p));console.error('hero program',gl.getProgramInfoLog(p))}
     var o={p:p,a:{},u:{}};attrs.forEach(function(n){o.a[n]=gl.getAttribLocation(p,n)});unis.forEach(function(n){o.u[n]=gl.getUniformLocation(p,n)});return o}
-  var PO=prog(objVS,objFS,['p','n','e'],['uM','uVP','uOff','uEye','uKey','uAmb','uFloor','uRefl','uFade','uMode']);
+  var PO=prog(objVS,objFS,['p','n','e'],['uM','uVP','uOff','uEye','uKey','uAmb','uFloor','uRefl','uFade','uMode','uBase','uTop','uSpecP','uSpecI','uBoxI','uF0','uMetal','uOr','uKeyI']);
   var PV=prog(quadVS,vigFS,['q'],['uC','uAsp','uV']);
   var PF=prog(floorVS,floorFS,['q'],['uM','uVP','uOff','uY','uFade']);
   var PD=prog(dustVS,dustFS,['a'],['uVP','uOff','uKey','uT','uDpr','uLit','uFade']);
@@ -206,6 +210,7 @@
     gl.bindBuffer(gl.ARRAY_BUFFER,bE); gl.enableVertexAttribArray(PO.a.e); gl.vertexAttribPointer(PO.a.e,1,gl.FLOAT,false,0,0);
     gl.uniformMatrix4fv(PO.u.uVP,false,VP); gl.uniform2f(PO.u.uOff,off[0],off[1]); gl.uniform3f(PO.u.uEye,eye[0],eye[1],eye[2]);
     gl.uniform3f(PO.u.uKey,key[0],key[1],key[2]); gl.uniform1f(PO.u.uAmb,amb); gl.uniform1f(PO.u.uFloor,FLOOR); gl.uniform1f(PO.u.uFade,fade);
+    gl.uniform3f(PO.u.uBase,MAT.base[0],MAT.base[1],MAT.base[2]); gl.uniform1f(PO.u.uTop,MAT.top); gl.uniform1f(PO.u.uSpecP,MAT.specP); gl.uniform1f(PO.u.uSpecI,MAT.specI); gl.uniform1f(PO.u.uBoxI,MAT.boxI); gl.uniform1f(PO.u.uF0,MAT.f0); gl.uniform1f(PO.u.uMetal,MAT.metal); gl.uniform1f(PO.u.uOr,MAT.orange); gl.uniform1f(PO.u.uKeyI,MAT.keyI);
     gl.uniform1f(PO.u.uRefl,0.06+0.4*ease(scrollP)); gl.uniform1f(PO.u.uMode,1); gl.uniformMatrix4fv(PO.u.uM,false,Mr); gl.drawArrays(gl.TRIANGLES,0,NV);
     gl.uniform1f(PO.u.uMode,0); gl.uniformMatrix4fv(PO.u.uM,false,Mo); gl.drawArrays(gl.TRIANGLES,0,NV);
     /* 4. dust: drifting, brighter inside the key light's cone, hidden behind the object */

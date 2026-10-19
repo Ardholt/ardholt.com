@@ -44,7 +44,7 @@ html.motion-off .motion .ind .play{display:block}
 /* hero */
 .hero{position:relative;min-height:100svh;display:grid;grid-template-rows:1fr auto;padding-top:120px;padding-bottom:56px;overflow:hidden;isolation:isolate}
 .truss{position:absolute;inset:0;width:100%;height:100%;z-index:-1;display:block}
-.lattice{position:absolute;inset:0;z-index:-2;background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);background-size:120px 120px;background-position:center top;-webkit-mask-image:radial-gradient(ellipse 75% 65% at 72% 30%,#000 10%,transparent 72%);mask-image:radial-gradient(ellipse 75% 65% at 72% 30%,#000 10%,transparent 72%)}
+.lattice{position:absolute;inset:0;z-index:-2;background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);background-size:120px 120px;background-position:center top;-webkit-mask-image:radial-gradient(ellipse 75% 65% at 72% 30%,#000 10%,transparent 72%),linear-gradient(#000 55%,transparent 96%);-webkit-mask-composite:source-in;mask-image:radial-gradient(ellipse 75% 65% at 72% 30%,#000 10%,transparent 72%),linear-gradient(#000 55%,transparent 96%);mask-composite:intersect}
 .hero h1{font-family:var(--serif);font-weight:400;font-size:clamp(50px,8.6vw,146px);line-height:.94;letter-spacing:-.02em;margin:0;max-width:11.5ch;align-self:end}
 .hero h1 i{font-style:italic}
 .hero h1 .dot{color:var(--acc)}
@@ -59,11 +59,11 @@ html.motion-off .motion .ind .play{display:block}
 .cue{position:absolute;right:var(--gutter);bottom:56px;display:flex;flex-direction:column;align-items:center;gap:8px;font-family:var(--mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--mute)}
 .cue b{font-weight:400}
 .cue i{width:44px;height:44px;display:grid;place-items:center;border:1px solid var(--line-2);border-radius:50%;position:relative}
-.cue i svg{position:absolute;width:12px;height:12px;left:16px;top:24px}
+.cue i svg{width:12px;height:24px;display:block;animation:cue 2.2s var(--ease) 2}
 .cue:hover i{border-color:var(--ink)}
-.cue span{width:1px;height:14px;background:var(--ink);animation:cue 2.2s var(--ease) 2}
+
 @keyframes cue{0%{transform:translateY(-6px);opacity:0}30%{opacity:1}100%{transform:translateY(8px);opacity:0}}
-html.motion-off .cue span{animation:none}
+html.motion-off .cue i svg{animation:none}
 
 /* split-line reveal */
 .lines .ln{display:block;overflow:hidden;padding-bottom:.08em;margin-bottom:-.08em}
@@ -170,7 +170,7 @@ html.capture .rv,html.capture .lines .ln>span{transition:none!important}
   .hero{padding-top:104px;padding-bottom:40px}
   .truss{-webkit-mask-image:linear-gradient(#000 38%,transparent 50%);mask-image:linear-gradient(#000 38%,transparent 50%)}
   .hero{min-height:88svh}
-  .lattice{-webkit-mask-image:radial-gradient(ellipse 90% 45% at 50% 22%,#000 10%,transparent 70%);mask-image:radial-gradient(ellipse 90% 45% at 50% 22%,#000 10%,transparent 70%)}
+  .lattice{-webkit-mask-image:radial-gradient(ellipse 90% 45% at 50% 22%,#000 10%,transparent 70%),linear-gradient(#000 50%,transparent 95%);-webkit-mask-composite:source-in;mask-image:radial-gradient(ellipse 90% 45% at 50% 22%,#000 10%,transparent 70%),linear-gradient(#000 50%,transparent 95%);mask-composite:intersect}
   .mnav{display:flex;gap:22px;margin:22px 0 30px;font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink)}
   .mnav a{padding:14px 0;min-height:44px;display:inline-flex;align-items:center;border-bottom:1px solid var(--line-2)}
   .hero .under,.head,.band .r{grid-template-columns:1fr;gap:18px}
@@ -191,7 +191,7 @@ html.capture .rv,html.capture .lines .ln>span{transition:none!important}
   html{scroll-behavior:auto}
   .lines .ln>span{transform:none;transition:none}
   .rv{transition:opacity .2s;transform:none}
-  .cue span{animation:none}
+  .cue i svg{animation:none}
   .nav a::after{transition:none}
   .band .r p.q .w{color:var(--ink)}
   .steps .progress i{transform:none}
