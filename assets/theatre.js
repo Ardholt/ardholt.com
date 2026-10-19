@@ -31,6 +31,8 @@
 
   /* ---------- header: compact glass and scroll progress ---------- */
   var hdr=$('#hdr')||$('.top'), prog=null, hdrScrolled=false;
+  /* the header steps aside past the hero and returns on an upward gesture (wheel or touch), not on programmatic scroll */
+  if(hdr){var ty0=null;addEventListener('wheel',function(e){if(e.deltaY<-2)hdr.classList.remove('th-away')},{passive:true});addEventListener('touchstart',function(e){ty0=e.touches[0].clientY},{passive:true});addEventListener('touchmove',function(e){var y=e.touches[0].clientY;if(ty0!==null&&y-ty0>6)hdr.classList.remove('th-away');ty0=y},{passive:true});hdr.addEventListener('focusin',function(){hdr.classList.remove('th-away')})}
   if(hdr){prog=make('span','th-prog');prog.setAttribute('aria-hidden','true');hdr.appendChild(prog)}
 
   /* ---------- arrival: once per session, home only (the head script decides) ---------- */
@@ -373,7 +375,7 @@
     var hr=heroH1&&heroEl.getBoundingClientRect(), br=bandLift&&band.getBoundingClientRect(), sb=stage&&stage.parentNode.getBoundingClientRect().bottom;
     if(hdr){var sc=y>8;if(sc!==hdrScrolled){hdrScrolled=sc;hdr.classList.toggle('th-scrolled',sc)}prog.style.transform='scaleX('+clamp(y/max,0,1).toFixed(4)+')';
       /* the header steps aside while reading down and returns on the first scroll up, so it never sits over the words */
-      var dir=y-(hdr._ly||0);hdr._ly=y;if(y>160&&dir>2){hdr.classList.add('th-away')}else if(dir<-2||y<=160){hdr.classList.remove('th-away')}}
+      if(y>160){hdr.classList.add('th-away')}else{hdr.classList.remove('th-away')}}
     if(heroH1){
       var s=-hr.top;
       if(mon&&s>0&&hr.bottom>0){heroH1.style.transform='translate3d(0,'+(s*.15).toFixed(1)+'px,0)';heroH1.style.opacity=(1-clamp(s/(hr.height*.7),0,1)*.85).toFixed(3);heroDirty=true}
