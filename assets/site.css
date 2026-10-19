@@ -71,7 +71,7 @@ html.motion-off .cue span{animation:none}
 .no-js .lines .ln>span,html.motion-off .lines .ln>span{transform:none;transition:none}
 
 /* sections */
-.sec{padding-top:clamp(96px,12vw,170px);padding-bottom:clamp(96px,12vw,170px)}
+.sec{padding-top:clamp(88px,11vw,150px);padding-bottom:clamp(88px,11vw,150px)}
 .head{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr);gap:clamp(28px,5vw,80px);align-items:start}
 h2{font-family:var(--serif);font-weight:400;font-size:clamp(38px,5vw,76px);line-height:.98;letter-spacing:-.015em;margin:0;text-wrap:balance}
 h2 i{font-style:italic}
@@ -102,7 +102,7 @@ h2 i{font-style:italic}
 .rail li.on{background:var(--ink)}
 .stage-label #viz-n{color:var(--ink)}
 .steps-list{list-style:none;margin:0;padding:0}
-.step{min-height:56vh;display:flex;flex-direction:column;justify-content:center;padding:24px 0;border-top:1px solid var(--line)}
+.step{min-height:50vh;display:flex;flex-direction:column;justify-content:center;padding:24px 0;border-top:1px solid var(--line)}
 .step:first-child{border-top:0}
 .step h3,.step p{opacity:.78;transition:opacity .6s var(--ease)}
 .step.active h3,.step.active p{opacity:1}
