@@ -138,10 +138,10 @@ h2 i{font-style:italic}
 .contact{padding-top:clamp(110px,14vw,200px);padding-bottom:clamp(110px,14vw,200px)}
 .contact .label{display:block;margin-bottom:26px}
 .contact h2{font-size:clamp(40px,5.6vw,88px);margin:0 0 40px;max-width:16ch}
-.contact .mail{display:inline-flex;align-items:center;gap:22px;font-family:var(--serif);font-size:clamp(28px,4vw,60px);line-height:1;letter-spacing:-.01em;padding:14px 0;border-bottom:1px solid var(--ink);transition:border-color .3s,color .3s;will-change:transform}
+.contact .mail{display:inline-flex;align-items:center;gap:26px;font-family:var(--serif);font-size:clamp(28px,3.6vw,54px);line-height:1;letter-spacing:-.01em;padding:.42em .9em .42em 1em;background:var(--ink);color:var(--bg);border:1px solid var(--ink);border-radius:999px;transition:background .3s,color .3s;will-change:transform}
 .contact .mail .arrow{display:inline-block;width:.9em;height:.9em;border:1px solid currentColor;border-radius:50%;position:relative;flex:none;transition:transform .5s var(--ease)}
 .contact .mail .arrow::after{content:"";position:absolute;left:30%;top:30%;width:40%;height:40%;border-top:1px solid currentColor;border-right:1px solid currentColor;transform:rotate(45deg)}
-.contact .mail:hover,.contact .mail:focus-visible{color:var(--acc);border-color:var(--acc)}
+.contact .mail:hover,.contact .mail:focus-visible{background:transparent;color:var(--ink)}
 .contact .mail:hover .arrow{transform:rotate(45deg)}
 .contact .note{margin:34px 0 0;color:var(--mute);font-size:15px;max-width:48ch;line-height:1.6}
 
@@ -166,7 +166,9 @@ html.capture .rv,html.capture .lines .ln>span{transition:none!important}
 }
 @media(max-width:52.5em){
   .hero{padding-top:104px;padding-bottom:40px}
-  .truss{-webkit-mask-image:linear-gradient(#000 26%,rgba(0,0,0,.18) 48%,transparent 80%);mask-image:linear-gradient(#000 26%,rgba(0,0,0,.18) 48%,transparent 80%)}
+  .truss{-webkit-mask-image:linear-gradient(#000 34%,transparent 52%);mask-image:linear-gradient(#000 34%,transparent 52%)}
+  .hero{min-height:100svh}
+  .lattice{-webkit-mask-image:radial-gradient(ellipse 90% 45% at 50% 22%,#000 10%,transparent 70%);mask-image:radial-gradient(ellipse 90% 45% at 50% 22%,#000 10%,transparent 70%)}
   .mnav{display:flex;gap:22px;margin:22px 0 30px;font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink)}
   .mnav a{padding:14px 0;min-height:44px;display:inline-flex;align-items:center;border-bottom:1px solid var(--line-2)}
   .hero .under,.head,.band .r{grid-template-columns:1fr;gap:18px}
@@ -174,7 +176,11 @@ html.capture .rv,html.capture .lines .ln>span{transition:none!important}
   .three .n,.steps>div:not(.progress)::before{margin-bottom:18px}
   .cue{display:none}
   .scrolly{display:block;margin-top:40px}
-  .stage{position:sticky;top:64px;height:42vh;z-index:2}
+  .stage{position:sticky;top:64px;height:44vh;z-index:2}
+  .stage-label{position:static;margin:0;padding:10px 14px 0;font-size:11px}
+  .rail{display:none}
+  .stage{display:flex;flex-direction:column}
+  .stage canvas{position:relative;flex:1;height:auto}
   .step{min-height:0;padding:40px 0 28px;opacity:1}
   .step .k{font-size:32px}
   .foot .g{grid-template-columns:auto 1fr}.foot .links{grid-column:1/-1;flex-direction:row;flex-wrap:wrap;gap:18px;text-align:left}
