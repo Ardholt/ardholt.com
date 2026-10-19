@@ -143,7 +143,7 @@
   /* ---------- cursor: a bone dot, larger over what can be pressed, a ring over live stages ---------- */
   var cur=null, cu={x:0,y:0,tx:0,ty:0,state:'',shown:false};
   function cursorOn(){return fineMq.matches&&motionOn()}
-  function ensureCursor(){if(!cur){cur=make('div','th-cursor','<i></i><b></b>');cur.setAttribute('aria-hidden','true');body.appendChild(cur)}}
+  function ensureCursor(){if(bot)return;if(!cur){cur=make('div','th-cursor','<i></i><b></b>');cur.setAttribute('aria-hidden','true');body.appendChild(cur)}}
   document.addEventListener('pointerover',function(e){
     if(!cur)return;var t=e.target,s='';
     if(t&&t.closest){if(t.closest('a[href],button,[role="button"],summary,label'))s='link';else if(t.closest('.stage,.scene,.pr-stage'))s='ring'}
@@ -371,7 +371,9 @@
     ticking=false;
     var y=scrollY||pageYOffset, vh=innerHeight, max=Math.max(1,root.scrollHeight-vh), mon=motionOn();
     var hr=heroH1&&heroEl.getBoundingClientRect(), br=bandLift&&band.getBoundingClientRect(), sb=stage&&stage.parentNode.getBoundingClientRect().bottom;
-    if(hdr){var sc=y>8;if(sc!==hdrScrolled){hdrScrolled=sc;hdr.classList.toggle('th-scrolled',sc)}prog.style.transform='scaleX('+clamp(y/max,0,1).toFixed(4)+')'}
+    if(hdr){var sc=y>8;if(sc!==hdrScrolled){hdrScrolled=sc;hdr.classList.toggle('th-scrolled',sc)}prog.style.transform='scaleX('+clamp(y/max,0,1).toFixed(4)+')';
+      /* the header steps aside while reading down and returns on the first scroll up, so it never sits over the words */
+      var dir=y-(hdr._ly||0);hdr._ly=y;if(y>160&&dir>2){hdr.classList.add('th-away')}else if(dir<-2||y<=160){hdr.classList.remove('th-away')}}
     if(heroH1){
       var s=-hr.top;
       if(mon&&s>0&&hr.bottom>0){heroH1.style.transform='translate3d(0,'+(s*.15).toFixed(1)+'px,0)';heroH1.style.opacity=(1-clamp(s/(hr.height*.7),0,1)*.85).toFixed(3);heroDirty=true}
