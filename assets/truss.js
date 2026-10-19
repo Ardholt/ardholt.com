@@ -10,7 +10,7 @@
   var P={A:[16,3],B:[3,29],C:[29,29],D:[16,10.2],E:[6.6,29],F:[25.4,29],G:[16,19],H:[11,29],I:[21,29]};
   var E=[['A','B'],['A','C'],['B','C'],['D','E'],['D','F'],['E','F'],['A','D'],['B','E'],['C','F'],['G','H'],['G','I'],['H','I'],['D','G'],['E','H'],['F','I']];
   var keys=Object.keys(P), Z=0.55, nodes=[], edges=[];
-  keys.forEach(function(k,i){var x=(P[k][0]-16)/12,y=(16-P[k][1])/12+0.22;nodes.push([x,y,Z]);nodes.push([x,y,-Z])});
+  keys.forEach(function(k,i){var x=(P[k][0]-16)/12.6,y=(16-P[k][1])/12.6+0.24;nodes.push([x,y,Z]);nodes.push([x,y,-Z])});
   function idx(k,layer){return keys.indexOf(k)*2+layer}
   E.forEach(function(e){edges.push([idx(e[0],0),idx(e[1],0)]);edges.push([idx(e[0],1),idx(e[1],1)])});
   keys.forEach(function(k){edges.push([idx(k,0),idx(k,1)])});
@@ -45,12 +45,12 @@
     if(on){build=Math.min(1,build+0.012);px+=(tx-px)*.06;py+=(ty-py)*.06}else{build=1}
     var scroll=Math.min(1,Math.max(0,(scrollY)/(hero.offsetHeight*.9))); /* disassembles as you leave the hero */
     var ease=build<1?1-Math.pow(1-build,3):1, asm=ease*(1-scroll);
-    var ry=(on?Math.sin(t*.22)*.42:.3)+px*.4, rx=-.1+py*.22, m=mat(rx,ry,W/H);
-    var pos=[],col=[],off=W*(innerWidth>840?.26:0),sc=1;
+    var ry=(on?Math.sin(t*.22)*.26:.2)+px*.3, rx=-.1+py*.18, m=mat(rx,ry,W/H);
+    var pos=[],col=[],off=W*(innerWidth>840?.2:0),sc=1;
     var cur=nodes.map(function(n,i){var s=scatter[i];return [n[0]*asm+s[0]*(1-asm),n[1]*asm+s[1]*(1-asm),n[2]*asm+s[2]*(1-asm)]});
     /* which nodes are near the pointer, in screen space */
     var glow=cur.map(function(v){var q=project(v,m);q[0]+=off;if(!hover.length||!on)return 0;var d=Math.hypot(q[0]-hover[0],q[1]-hover[1]);return Math.max(0,1-d/140)});
-    var la=(.42+.1*Math.sin(t*.7))*asm+0.05;
+    var la=(.62+.1*Math.sin(t*.7))*asm+0.06;
     edges.forEach(function(e,ei){var a=cur[e[0]],b=cur[e[1]],g=Math.max(glow[e[0]],glow[e[1]]);var c=[INK[0]+(ACC[0]-INK[0])*g,INK[1]+(ACC[1]-INK[1])*g,INK[2]+(ACC[2]-INK[2])*g,(ei<nStruct?la:la*.35)+g*.5];pos.push(a[0],a[1],a[2],b[0],b[1],b[2]);col.push.apply(col,c);col.push.apply(col,c)});
     gl.clearColor(0,0,0,0); gl.clear(gl.COLOR_BUFFER_BIT);
     gl.uniformMatrix4fv(uM,false,m); gl.uniform1i(uR,0);

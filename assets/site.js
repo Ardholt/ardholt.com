@@ -28,7 +28,7 @@
 
   /* capabilities stepper: the pinned stage follows the step nearest the middle of the viewport */
   var steps=document.querySelectorAll('.step'), vn=document.getElementById('viz-n'), vt=document.getElementById('viz-t'), active=null;
-  function setActive(li){if(li===active)return;active=li;steps.forEach(function(s){s.classList.toggle('active',s===li)});vn.textContent=li.querySelector('.n').textContent;vt.textContent=li.querySelector('h3').textContent;if(window.ARDHOLT_VIZ)window.ARDHOLT_VIZ.set(li.dataset.viz)}
+  function setActive(li){if(li===active)return;active=li;steps.forEach(function(s){s.classList.toggle('active',s===li)});vn.textContent=li.querySelector('.n').textContent;var idx=Array.prototype.indexOf.call(steps,li);document.querySelectorAll('.rail li').forEach(function(d,i){d.classList.toggle('on',i===idx)});vt.textContent=li.querySelector('h3').textContent;if(window.ARDHOLT_VIZ)window.ARDHOLT_VIZ.set(li.dataset.viz)}
   var sio=new IntersectionObserver(function(en){en.forEach(function(x){if(x.isIntersecting)setActive(x.target)})},{rootMargin:'-45% 0px -45% 0px',threshold:0});
   steps.forEach(function(s){sio.observe(s)}); setActive(steps[0]);
 
