@@ -83,7 +83,7 @@
     ' vec3 Lr=normalize(vec3(.8,-.5,.3));float rim=pow(1.-ndv,3.)*max(dot(N,Lr),0.);',
     ' col+=WARM*.2*rim*1.5;',
     ' vec3 Lo=normalize(vec3(.55,.85,.25));float ndlo=max(dot(N,Lo),0.);vec3 Ho=normalize(Lo+V);',        /* the orange spot: above and to the right */
-    ' col+=WARM*base*2.2*ndlo*uOr;col+=WARM*tint*pow(max(dot(N,Ho),0.),uSpecP*.7)*1.1*uOr;col+=WARM*F*.3*uOr*(.6+.8*vE);',                                                  /* warm rim, silhouette only */
+    ' col+=WARM*base*.55*ndlo*uOr;col+=WARM*tint*pow(max(dot(N,Ho),0.),uSpecP*.7)*1.3*uOr;col+=WARM*F*.16*uOr*(.5+1.2*vE);',                                                  /* warm rim, silhouette only */
     ' col=1.-exp(-col*1.25);',                                                 /* soft shoulder: highlights roll to bone, never clip */
     ' float a=1.;',
     ' if(uMode>.5){a=uRefl*pow(1.-clamp((uFloor-vP.y)/1.1,0.,1.),1.6);col*=.9;}',
