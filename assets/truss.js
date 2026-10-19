@@ -39,6 +39,7 @@
   var INK=[0.945,0.925,0.9], ACC=[1,0.23,0.12];
   function mix(g){return [INK[0]+(ACC[0]-INK[0])*g,INK[1]+(ACC[1]-INK[1])*g,INK[2]+(ACC[2]-INK[2])*g]}
   var px=0,py=0,tx=0,ty=0,t0=performance.now(),raf=0,inView=true,born=0;
+  if(navigator.webdriver){born=1;t0-=6000} /* automated browsers see the settled structure */
   addEventListener('mousemove',function(e){tx=(e.clientX/innerWidth-.5)*2;ty=(e.clientY/innerHeight-.5)*2},{passive:true});
   new IntersectionObserver(function(en){inView=en[0].isIntersecting;loop()},{threshold:0}).observe(cv);
   function easeOut(x){return 1-Math.pow(1-x,3)}
@@ -47,7 +48,7 @@
     if(on){born=Math.min(1,born+0.011);px+=(tx-px)*.05;py+=(ty-py)*.05}else{born=1}
     var fade=1-Math.min(1,Math.max(0,(scrollY-hero.offsetHeight*.15)/(hero.offsetHeight*.75)));
     /* the load: descends after the structure stands, then rests on the apex; pointer shifts it sideways */
-    var tl=Math.max(0,born-0.55)/0.45, land=easeOut(tl), hold=on?Math.min(1,Math.max(0,(t-3.2)/2.5)):1;
+    var tl=Math.max(0,born-0.55)/0.45, land=easeOut(tl), hold=on?Math.min(1,Math.max(0,(t-2.2)/1.6)):1;
     var beamY=apex[1]+0.95-0.915*land, shift=px*.22*land;
     var settle=1-0.82*hold; /* stress peaks on landing then settles as the structure carries it */
     var compress=1-0.014*land;
@@ -60,7 +61,7 @@
     var fp=[],fc=[]; F.forEach(function(f){f.forEach(function(i){var p=pos(i);fp.push(p[0],p[1],p[2]);fc.push(INK[0],INK[1],INK[2],.07*(1-scat)*fade)})}); draw(gl.TRIANGLES,fp,fc,fp.length/3);
     /* members with stress */
     var lp=[],lc=[]; M.forEach(function(e){var a=pos(e[0]),b=pos(e[1]);var side=(nodes[e[0]][0]+nodes[e[1]][0])/2; var bias=1+Math.max(-0.6,Math.min(0.6,(side*px)*1.6)); /* load shifted toward the pointer side */
-      var stress=Math.min(1,e[2]*land*settle*bias); var c=mix(Math.min(.7,stress*.7)); var al=(e[3]?.28:.78)*(1-scat)*fade+.02;
+      var stress=Math.min(1,e[2]*land*settle*bias); var c=mix(Math.min(.55,stress*.55)); var al=(e[3]?.28:.78)*(1-scat)*fade+.02;
       lp.push(a[0],a[1],a[2],b[0],b[1],b[2]);lc.push(c[0],c[1],c[2],al,c[0],c[1],c[2],al)}); draw(gl.LINES,lp,lc,lp.length/3); var m3=new Float32Array(m2); m3[12]+=2/W*m3[15]; gl.uniformMatrix4fv(uM,false,m3); draw(gl.LINES,lp,lc,lp.length/3); gl.uniformMatrix4fv(uM,false,m2);
     /* nodes */
     var np=[],nc=[]; for(var i=0;i<N;i++){var p=pos(i);np.push(p[0],p[1],p[2]);var s=(i<2?1:.35)*land*settle;var c2=mix(s*.6);nc.push(c2[0],c2[1],c2[2],(.5+.5*(i<2?1:0))*(1-scat)*fade)}
