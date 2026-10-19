@@ -28,6 +28,8 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
 .nav a::after{content:"";position:absolute;left:0;right:100%;bottom:8px;height:1px;background:var(--ink);transition:right .35s var(--ease)}
 .nav a:hover::after,.nav a:focus-visible::after{right:0}
 .nav a.c{color:var(--ink)}
+.nav a.c .short{display:none}
+@media(max-width:26em){.nav a.c .full{display:none}.nav a.c .short{display:inline}:root{--gutter:16px}}
 .motion{display:inline-flex;align-items:center;gap:9px;padding:10px 12px;border:1px solid var(--line-2);border-radius:999px;font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-2);min-height:36px;transition:border-color .3s}
 .motion:hover{border-color:var(--mute)}
 .motion .ind{width:6px;height:6px;border-radius:50%;background:var(--acc);box-shadow:0 0 10px rgba(255,59,31,.7);transition:background .3s,box-shadow .3s}
@@ -45,7 +47,7 @@ html.motion-off .motion .ind{background:var(--mute);box-shadow:none}
 .hero .under p{margin:0;max-width:46ch;font-size:18px;line-height:1.55;color:var(--ink-2)}
 .hero .under .label{padding-top:6px}
 .cue{position:absolute;right:var(--gutter);bottom:56px;width:44px;height:44px;display:grid;place-items:center;border:1px solid var(--line-2);border-radius:50%}
-.cue span{width:1px;height:14px;background:var(--ink);animation:cue 2.2s var(--ease) infinite}
+.cue span{width:1px;height:14px;background:var(--ink);animation:cue 2.2s var(--ease) 2}
 @keyframes cue{0%{transform:translateY(-6px);opacity:0}30%{opacity:1}100%{transform:translateY(8px);opacity:0}}
 html.motion-off .cue span{animation:none}
 
@@ -58,7 +60,7 @@ html.motion-off .cue span{animation:none}
 /* sections */
 .sec{padding-top:clamp(96px,12vw,170px);padding-bottom:clamp(96px,12vw,170px)}
 .head{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr);gap:clamp(28px,5vw,80px);align-items:start}
-h2{font-family:var(--serif);font-weight:400;font-size:clamp(38px,5vw,76px);line-height:.98;letter-spacing:-.015em;margin:0}
+h2{font-family:var(--serif);font-weight:400;font-size:clamp(38px,5vw,76px);line-height:.98;letter-spacing:-.015em;margin:0;text-wrap:balance}
 h2 i{font-style:italic}
 .lede{font-size:clamp(19px,1.6vw,23px);line-height:1.5;color:var(--ink-2);margin:0 0 22px;max-width:46ch}
 .lede:last-child{margin-bottom:0}
@@ -82,9 +84,10 @@ h2 i{font-style:italic}
 .stage-label{position:absolute;left:18px;bottom:16px;display:flex;gap:14px}
 .stage-label #viz-n{color:var(--acc)}
 .steps-list{list-style:none;margin:0;padding:0}
-.step{min-height:72vh;display:flex;flex-direction:column;justify-content:center;padding:24px 0;border-top:1px solid var(--line);opacity:.32;transition:opacity .6s var(--ease)}
+.step{min-height:72vh;display:flex;flex-direction:column;justify-content:center;padding:24px 0;border-top:1px solid var(--line)}
 .step:first-child{border-top:0}
-.step.active{opacity:1}
+.step h3,.step p{opacity:.64;transition:opacity .6s var(--ease)}
+.step.active h3,.step.active p{opacity:1}
 .step .n{font-family:var(--mono);font-size:11px;letter-spacing:.2em;color:var(--acc);display:block;margin-bottom:22px}
 .step h3{font-family:var(--serif);font-weight:400;font-size:clamp(32px,3.2vw,52px);line-height:1;letter-spacing:-.015em;margin:0 0 16px}
 .step p{margin:0;color:var(--ink-2);font-size:17px;line-height:1.6;max-width:42ch}
