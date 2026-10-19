@@ -49,7 +49,7 @@
     /* the load: descends after the structure stands, then rests on the apex; pointer shifts it sideways */
     var tl=Math.max(0,born-0.55)/0.45, land=easeOut(tl), hold=on?Math.min(1,Math.max(0,(t-3.2)/2.5)):1;
     var beamY=apex[1]+0.95-0.915*land, shift=px*.22*land;
-    var settle=1-0.6*hold; /* stress peaks on landing then settles as the structure carries it */
+    var settle=1-0.82*hold; /* stress peaks on landing then settles as the structure carries it */
     var compress=1-0.014*land;
     var ry=(on?Math.sin(t*.2)*.3:.22)+px*.28, rx=-.09+py*.16, m=mat(rx,ry,W/H,compress);
     var off=W*(innerWidth>840?.17:0); var m2=new Float32Array(m); m2[12]+=off/W*2*m2[15]; gl.uniformMatrix4fv(uM,false,m2);
@@ -60,17 +60,17 @@
     var fp=[],fc=[]; F.forEach(function(f){f.forEach(function(i){var p=pos(i);fp.push(p[0],p[1],p[2]);fc.push(INK[0],INK[1],INK[2],.07*(1-scat)*fade)})}); draw(gl.TRIANGLES,fp,fc,fp.length/3);
     /* members with stress */
     var lp=[],lc=[]; M.forEach(function(e){var a=pos(e[0]),b=pos(e[1]);var side=(nodes[e[0]][0]+nodes[e[1]][0])/2; var bias=1+Math.max(-0.6,Math.min(0.6,(side*px)*1.6)); /* load shifted toward the pointer side */
-      var stress=Math.min(1,e[2]*land*settle*bias*1.1); var c=mix(Math.min(1,stress*1.05)); var al=(e[3]?.28:.78)*(1-scat)*fade+.02;
+      var stress=Math.min(1,e[2]*land*settle*bias); var c=mix(Math.min(.7,stress*.7)); var al=(e[3]?.28:.78)*(1-scat)*fade+.02;
       lp.push(a[0],a[1],a[2],b[0],b[1],b[2]);lc.push(c[0],c[1],c[2],al,c[0],c[1],c[2],al)}); draw(gl.LINES,lp,lc,lp.length/3); var m3=new Float32Array(m2); m3[12]+=2/W*m3[15]; gl.uniformMatrix4fv(uM,false,m3); draw(gl.LINES,lp,lc,lp.length/3); gl.uniformMatrix4fv(uM,false,m2);
     /* nodes */
-    var np=[],nc=[]; for(var i=0;i<N;i++){var p=pos(i);np.push(p[0],p[1],p[2]);var s=(i<2?1:.35)*land*settle;var c2=mix(s*.9);nc.push(c2[0],c2[1],c2[2],(.5+.5*(i<2?1:0))*(1-scat)*fade)}
+    var np=[],nc=[]; for(var i=0;i<N;i++){var p=pos(i);np.push(p[0],p[1],p[2]);var s=(i<2?1:.35)*land*settle;var c2=mix(s*.6);nc.push(c2[0],c2[1],c2[2],(.5+.5*(i<2?1:0))*(1-scat)*fade)}
     gl.uniform1i(uR,1); gl.uniform1f(uPS,DPR*18); draw(gl.POINTS,np,nc,N);
     /* the apex glow carries the load */
-    gl.uniform1f(uPS,DPR*(60+30*(1-settle))); draw(gl.POINTS,[apex[0],apex[1],apex[2]],mix(.6*land*settle).concat([.16*land*fade]),1);
+    gl.uniform1f(uPS,DPR*(60+30*(1-settle))); draw(gl.POINTS,[apex[0],apex[1],apex[2]],mix(.5*land*settle).concat([.14*land*fade]),1);
     /* the beam: a bar of two lines with end caps, lowering onto the apex */
     if(land>0){var bw=1.15,by=beamY,bz=0;var bp=[-bw/2+shift,by,bz, bw/2+shift,by,bz, -bw/2+shift,by+.045,bz, bw/2+shift,by+.045,bz, -bw/2+shift,by,bz, -bw/2+shift,by+.045,bz, bw/2+shift,by,bz, bw/2+shift,by+.045,bz];var ba=.9*land*fade;var bc=[];for(var k=0;k<8;k++)bc.push(INK[0],INK[1],INK[2],ba);gl.uniform1i(uR,0);draw(gl.LINES,bp,bc,8);
       /* a fine seam where the beam meets the apex */
-      gl.uniform1i(uR,1);gl.uniform1f(uPS,DPR*10);draw(gl.POINTS,[shift,by,0],mix(.9*land*settle).concat([.9*land*fade]),1)}
+      gl.uniform1i(uR,1);gl.uniform1f(uPS,DPR*10);draw(gl.POINTS,[shift,by,0],mix(.8*land*settle).concat([.9*land*fade]),1)}
   }
   function loop(){cancelAnimationFrame(raf);if(!inView)return;function step(now){frame(now);if(window.ARDHOLT&&window.ARDHOLT.motionOn()&&inView)raf=requestAnimationFrame(step)}raf=requestAnimationFrame(step)}
   addEventListener('ardholt:motion',loop); addEventListener('scroll',function(){if(!(window.ARDHOLT&&window.ARDHOLT.motionOn()))requestAnimationFrame(frame)},{passive:true});
