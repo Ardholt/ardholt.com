@@ -26,7 +26,9 @@
   var io=new IntersectionObserver(function(en){en.forEach(function(x){if(x.isIntersecting){x.target.classList.add('in');io.unobserve(x.target)}})},{rootMargin:'0px 0px -8% 0px',threshold:.1});
   document.querySelectorAll('.rv,.lines').forEach(function(e){io.observe(e)});
   /* a capture-sized viewport (full-page screenshot) resolves every reveal at once */
-  var baseH=innerHeight; addEventListener('resize',function(){if(innerHeight>baseH*1.8){root.classList.add('capture');document.querySelectorAll('.rv,.lines').forEach(function(e){e.classList.add('in')})}});
+  function resolveAll(){root.classList.add('capture');document.querySelectorAll('.rv,.lines').forEach(function(e){e.classList.add('in')})}
+  var baseH=innerHeight; addEventListener('resize',function(){if(innerHeight>baseH*1.8)resolveAll()});
+  if(navigator.webdriver)resolveAll(); /* automated browsers and screenshot services get the resolved page */
 
   /* capabilities stepper: the pinned stage follows the step nearest the middle of the viewport */
   var steps=document.querySelectorAll('.step'), vn=document.getElementById('viz-n'), vt=document.getElementById('viz-t'), active=null;
