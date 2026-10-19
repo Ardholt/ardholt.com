@@ -51,7 +51,7 @@ html.motion-off .motion .ind .play{display:block}
 .hero .under{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr);gap:40px;margin-top:48px;padding-top:26px;border-top:1px solid var(--line-2);align-items:start}
 .hero .under p{margin:0;max-width:46ch;font-size:18px;line-height:1.55;color:var(--ink-2)}
 .hero .under .label{padding-top:6px}
-.nowrap{white-space:nowrap}
+@media(min-width:52.5em){.nowrap{white-space:nowrap}}
 .hero .under p:not(.label){text-wrap:pretty}
 .mnav{display:none}
 .cue{position:absolute;right:var(--gutter);bottom:56px;display:flex;flex-direction:column;align-items:center;gap:8px;font-family:var(--mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--mute)}
