@@ -32,7 +32,7 @@
   /* ---------- header: compact glass and scroll progress ---------- */
   var hdr=$('#hdr')||$('.top'), prog=null, hdrScrolled=false;
   /* the header steps aside past the hero and returns on an upward gesture (wheel or touch), not on programmatic scroll */
-  if(hdr){var ty0=null;addEventListener('wheel',function(e){if(e.deltaY<-2)hdr.classList.remove('th-away')},{passive:true});addEventListener('touchstart',function(e){ty0=e.touches[0].clientY},{passive:true});addEventListener('touchmove',function(e){var y=e.touches[0].clientY;if(ty0!==null&&y-ty0>6)hdr.classList.remove('th-away');ty0=y},{passive:true});hdr.addEventListener('focusin',function(){hdr.classList.remove('th-away')})}
+  if(hdr){var ty0=null;addEventListener('wheel',function(e){if(e.deltaY<-2)hdr.classList.remove('th-away')},{passive:true});addEventListener('touchstart',function(e){ty0=e.touches[0].clientY},{passive:true});addEventListener('touchmove',function(e){var y=e.touches[0].clientY;if(ty0!==null&&y-ty0>6)hdr.classList.remove('th-away');ty0=y},{passive:true});hdr.addEventListener('focusin',function(){hdr.classList.remove('th-away');if(scrollY>160)scrollTo({top:0,behavior:'instant'})})}
   if(hdr){prog=make('span','th-prog');prog.setAttribute('aria-hidden','true');hdr.appendChild(prog)}
 
   /* ---------- arrival: once per session, home only (the head script decides) ---------- */
