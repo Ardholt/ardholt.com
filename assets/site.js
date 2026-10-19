@@ -37,7 +37,7 @@
   var words=scrub?scrub.querySelectorAll('.w'):[], stepsBox=document.getElementById('steps'), bar=stepsBox&&stepsBox.querySelector('.progress i'), ticking=false;
   function onScroll(){if(ticking)return;ticking=true;requestAnimationFrame(function(){ticking=false;if(!motionOn())return;var vh=innerHeight;
     if(scrub){var r=scrub.getBoundingClientRect();var p=Math.min(1,Math.max(0,(vh*.85-r.top)/(vh*.55)));var n=Math.round(p*words.length);words.forEach(function(w,i){w.classList.toggle('on',i<n)})}
-    if(bar){var b=stepsBox.getBoundingClientRect();var q=Math.min(1,Math.max(0,(vh*.9-b.top)/(vh*.7)));bar.style.transform='scaleX('+q+')'}
+    if(bar&&!CSS.supports('animation-timeline:view()')){var b=stepsBox.getBoundingClientRect();var q=Math.min(1,Math.max(0,(vh*.9-b.top)/(vh*.7)));bar.style.transform='scaleX('+q+')'}
   })}
   addEventListener('scroll',onScroll,{passive:true}); addEventListener('resize',onScroll); onScroll();
   addEventListener('ardholt:motion',function(){if(!motionOn()){words.forEach(function(w){w.classList.add('on')});if(bar)bar.style.transform='none'}else onScroll()});

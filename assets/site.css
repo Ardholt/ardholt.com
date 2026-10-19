@@ -32,7 +32,7 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
 @media(max-width:26em){.nav a.c .full{display:none}.nav a.c .short{display:inline}:root{--gutter:16px}}
 .motion{display:inline-flex;align-items:center;gap:9px;padding:10px 12px;border:1px solid var(--line-2);border-radius:999px;font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-2);min-height:36px;transition:border-color .3s}
 .motion:hover{border-color:var(--mute)}
-.motion .ind{width:6px;height:6px;border-radius:50%;background:var(--acc);box-shadow:0 0 10px rgba(255,59,31,.7);transition:background .3s,box-shadow .3s}
+.motion .ind{width:6px;height:6px;border-radius:50%;background:var(--ink);box-shadow:0 0 8px rgba(241,236,230,.5);transition:background .3s,box-shadow .3s}
 html.motion-off .motion .ind{background:var(--mute);box-shadow:none}
 @media(max-width:52.5em){.nav a:not(.c){display:none}.nav{gap:14px}.motion .t{display:none}.motion{padding:10px}}
 
@@ -82,7 +82,7 @@ h2 i{font-style:italic}
 .stage{position:sticky;top:10vh;height:80vh;border:1px solid var(--line-2);border-radius:4px;overflow:hidden;background:var(--bg-2)}
 .stage canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
 .stage-label{position:absolute;left:18px;bottom:16px;display:flex;gap:14px}
-.stage-label #viz-n{color:var(--acc)}
+.stage-label #viz-n{color:var(--ink)}
 .steps-list{list-style:none;margin:0;padding:0}
 .step{min-height:72vh;display:flex;flex-direction:column;justify-content:center;padding:24px 0;border-top:1px solid var(--line)}
 .step:first-child{border-top:0}
@@ -105,6 +105,7 @@ h2 i{font-style:italic}
 .steps{position:relative;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:clamp(20px,2.5vw,40px);margin-top:clamp(64px,8vw,110px);counter-reset:s;padding-top:1px}
 .steps .progress{position:absolute;left:0;right:0;top:0;height:1px;background:var(--line-2);grid-column:1/-1}
 .steps .progress i{position:absolute;left:0;top:0;height:100%;width:100%;background:var(--acc);transform-origin:left;transform:scaleX(0);transition:transform .1s linear}
+@supports(animation-timeline:view()){.steps .progress i{animation:grow linear both;animation-timeline:view();animation-range:entry 0% cover 55%;transition:none}@keyframes grow{from{transform:scaleX(0)}to{transform:scaleX(1)}}}
 .no-js .steps .progress i,html.motion-off .steps .progress i{transform:none}
 .steps>div:not(.progress){position:relative;padding-top:22px}
 .steps>div:not(.progress)::before{counter-increment:s;content:"0" counter(s);font-family:var(--mono);font-size:11px;letter-spacing:.2em;color:var(--mute);display:block;margin-bottom:34px}

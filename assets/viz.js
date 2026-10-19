@@ -58,6 +58,7 @@
   window.ARDHOLT_VIZ={set:function(n){if(!V[n]||n===cur)return;prev=cur;cur=n;fade=0;if(!(window.ARDHOLT&&window.ARDHOLT.motionOn()))draw(performance.now())}};
   function draw(now){var t=(now-t0)/1000;ctx.clearRect(0,0,W,H);ctx.lineWidth=1;if(prev&&fade<1){ctx.globalAlpha=1-fade;V[prev](t);ctx.globalAlpha=fade;fade=Math.min(1,fade+.05)}V[cur](t);ctx.globalAlpha=1}
   function loop(){cancelAnimationFrame(raf);if(!inView)return;function step(now){draw(now);if(window.ARDHOLT&&window.ARDHOLT.motionOn()&&inView)raf=requestAnimationFrame(step)}raf=requestAnimationFrame(step)}
+  draw(performance.now());
   new IntersectionObserver(function(en){inView=en[0].isIntersecting;loop()},{threshold:0}).observe(cv);
   addEventListener('ardholt:motion',loop);
 })();
