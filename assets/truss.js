@@ -4,7 +4,7 @@
   var cv=document.getElementById('truss'); if(!cv) return;
   var gl=cv.getContext('webgl',{antialias:true,alpha:true,premultipliedAlpha:false}); if(!gl) return;
   var hero=cv.parentNode, W=0,H=0,DPR=Math.min(2,devicePixelRatio||1);
-  function size(){W=cv.clientWidth;H=cv.clientHeight;cv.width=W*DPR;cv.height=H*DPR;gl.viewport(0,0,cv.width,cv.height)} size(); addEventListener('resize',size);
+  function size(){W=cv.clientWidth;H=cv.clientHeight;cv.width=W*DPR;cv.height=H*DPR;gl.viewport(0,0,cv.width,cv.height)} size(); addEventListener('resize',function(){size();requestAnimationFrame(frame)});
 
   /* geometry: the mark's nodes in a 32-unit box (y down), mirrored into two layers */
   var P={A:[16,3],B:[3,29],C:[29,29],D:[16,10.2],E:[6.6,29],F:[25.4,29],G:[16,19],H:[11,29],I:[21,29]};

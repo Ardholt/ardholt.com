@@ -1,7 +1,7 @@
 /* Capabilities stage: one canvas, eight hand-drawn live visuals, cross-faded as the steps scroll. No libraries. */
 (function(){
   var cv=document.getElementById('viz'); if(!cv) return; var ctx=cv.getContext('2d');
-  var W=0,H=0,DPR=Math.min(2,devicePixelRatio||1); function size(){W=cv.clientWidth;H=cv.clientHeight;cv.width=W*DPR;cv.height=H*DPR;ctx.setTransform(DPR,0,0,DPR,0,0)} size(); addEventListener('resize',size);
+  var W=0,H=0,DPR=Math.min(2,devicePixelRatio||1); function size(){W=cv.clientWidth;H=cv.clientHeight;cv.width=W*DPR;cv.height=H*DPR;ctx.setTransform(DPR,0,0,DPR,0,0)} size(); addEventListener('resize',function(){size();draw(performance.now())});
   var INK='#f1ece6', INK2='rgba(241,236,230,.55)', MUTE='rgba(241,236,230,.38)', LINE='rgba(241,236,230,.10)', ACC='#ff3b1f', ACC2='rgba(255,59,31,.35)';
   var mx=.5,my=.5; cv.parentNode.addEventListener('mousemove',function(e){var r=cv.getBoundingClientRect();mx=(e.clientX-r.left)/r.width;my=(e.clientY-r.top)/r.height},{passive:true});
   function rnd(seed){var s=seed;return function(){s=(s*9301+49297)%233280;return s/233280}}
