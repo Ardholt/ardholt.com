@@ -104,6 +104,11 @@
 
   /* ---------- pillars: diagrams redraw on hover; keyboard users get every second sentence open ---------- */
   $$('.three .dg path, .three .dg circle').forEach(function(p){p.setAttribute('pathLength','1')});
+  /* the diagrams draw themselves the first time the pillars come into view, one after another */
+  var pillars=$$('.three>div');
+  if(pillars.length){if(!live()){pillars.forEach(function(p){p.classList.add('th-drawn')})}else{
+    var pio=new IntersectionObserver(function(en){en.forEach(function(x){if(!x.isIntersecting)return;var i=pillars.indexOf(x.target);x.target.style.setProperty('--dd',(Math.max(0,i)*0.14).toFixed(2)+'s');x.target.classList.add('th-drawn');pio.unobserve(x.target)})},{threshold:.45});
+    pillars.forEach(function(p){pio.observe(p)})}}
   addEventListener('keydown',function(e){if(e.key==='Tab')root.classList.add('th-kbd')});
 
   /* ---------- statement band: lifts by 2% as it enters ---------- */

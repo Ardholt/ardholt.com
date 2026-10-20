@@ -111,10 +111,11 @@ html.motion-off .th-band-lift,html.capture .th-band-lift{opacity:1!important}
 }
 .three .dg [pathLength]{stroke-dasharray:1 1;stroke-dashoffset:0}
 @keyframes th-draw{from{stroke-dashoffset:1}to{stroke-dashoffset:0}}
-html:not(.motion-off) .three>div:hover .dg [pathLength]{animation:th-draw .9s var(--ease-out) both}
-html:not(.motion-off) .three>div:hover .dg [pathLength]:nth-child(2){animation-delay:.08s}
-html:not(.motion-off) .three>div:hover .dg [pathLength]:nth-child(3){animation-delay:.16s}
-html:not(.motion-off) .three>div:hover .dg [pathLength]:nth-child(4){animation-delay:.24s}
+html.th-js:not(.motion-off):not(.capture) .three>div:not(.th-drawn) .dg [pathLength]{stroke-dashoffset:1}
+html:not(.motion-off) .three>div.th-drawn .dg [pathLength],html:not(.motion-off) .three>div:hover .dg [pathLength]{animation:th-draw .9s var(--ease-out) both;animation-delay:var(--dd,0s)}
+html:not(.motion-off) .three>div.th-drawn .dg [pathLength]:nth-child(2),html:not(.motion-off) .three>div:hover .dg [pathLength]:nth-child(2){animation-delay:calc(var(--dd,0s) + .08s)}
+html:not(.motion-off) .three>div.th-drawn .dg [pathLength]:nth-child(3),html:not(.motion-off) .three>div:hover .dg [pathLength]:nth-child(3){animation-delay:calc(var(--dd,0s) + .16s)}
+html:not(.motion-off) .three>div.th-drawn .dg [pathLength]:nth-child(4),html:not(.motion-off) .three>div:hover .dg [pathLength]:nth-child(4){animation-delay:calc(var(--dd,0s) + .24s)}
 
 /* standard steps: numerals count from 00 */
 .steps.th-counted>div:not(.progress)::before{content:none}
@@ -157,7 +158,7 @@ html:not(.motion-off) .three>div:hover .dg [pathLength]:nth-child(4){animation-d
   .th-menu,.th-menu li::after,.th-menu a.it{transition:opacity .2s!important;transform:none!important}
   .th-type .th-ch{opacity:1;transition:none}
   .th-js .three .more{transform:none!important;transition:opacity .2s,clip-path .2s!important}
-  .three>div:hover .dg [pathLength]{animation:none!important}
+  .three>div:hover .dg [pathLength],.three>div.th-drawn .dg [pathLength]{animation:none!important;stroke-dashoffset:0!important}
   .stage,.stage.th-released{transition:none;transform:none}
   .foot.th-foot svg,.foot.th-foot p,.foot.th-foot .links a{transform:none;transition:opacity .2s}
   .th-curtain{display:none}
