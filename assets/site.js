@@ -33,7 +33,9 @@
   /* capabilities stepper: the pinned stage follows the step nearest the middle of the viewport */
   var steps=document.querySelectorAll('.step'), vn=document.getElementById('viz-n'), vt=document.getElementById('viz-t'), active=null;
   function setActive(li){if(li===active)return;active=li;steps.forEach(function(s){s.classList.toggle('active',s===li)});vn.textContent=li.querySelector('.n').textContent;var idx=Array.prototype.indexOf.call(steps,li);document.querySelectorAll('.rail li').forEach(function(d,i){d.classList.toggle('on',i===idx)});vt.textContent=li.querySelector('h3').textContent;if(window.ARDHOLT_VIZ)window.ARDHOLT_VIZ.set(li.dataset.viz)}
-  var sio=new IntersectionObserver(function(en){en.forEach(function(x){if(x.isIntersecting)setActive(x.target)})},{rootMargin:'-45% 0px -45% 0px',threshold:0});
+  var narrowMq=matchMedia('(max-width:52.5em)');
+  /* on phones the active step is read in the open space under the pinned stage, not behind it */
+  var sio=new IntersectionObserver(function(en){en.forEach(function(x){if(x.isIntersecting)setActive(x.target)})},{rootMargin:narrowMq.matches?'-62% 0px -24% 0px':'-45% 0px -45% 0px',threshold:0});
   steps.forEach(function(s){sio.observe(s)}); if(steps.length)setActive(steps[0]);
 
   /* scrubbed statement + progress line + magnet + tilt: one rAF-throttled scroll handler */
@@ -43,6 +45,12 @@
     if(scrub){var r=scrub.getBoundingClientRect();var p=Math.min(1,Math.max(0,(vh*.85-r.top)/(vh*.55)));var n=Math.round(p*words.length);words.forEach(function(w,i){w.classList.toggle('on',i<n)})}
     if(bar&&!CSS.supports('animation-timeline:view()')){var b=stepsBox.getBoundingClientRect();var q=Math.min(1,Math.max(0,(vh*.9-b.top)/(vh*.7)));bar.style.transform='scaleX('+q+')'}
   })}
+  /* phones: mark the stage as pinned so its covers (above) and fade (below) appear only while it is stuck */
+  var stageEl=document.querySelector('.stage'),stuckTick=false;
+  function checkStuck(){stuckTick=false;if(!stageEl)return;if(!narrowMq.matches){stageEl.classList.remove('stuck');return}
+    var r=stageEl.getBoundingClientRect(),t=parseFloat(getComputedStyle(stageEl).top)||0,sc=stageEl.parentNode.getBoundingClientRect();
+    stageEl.classList.toggle('stuck',r.top<=t+1&&sc.bottom>r.bottom+8)}
+  addEventListener('scroll',function(){if(!stuckTick){stuckTick=true;requestAnimationFrame(checkStuck)}},{passive:true});addEventListener('resize',checkStuck);checkStuck();
   addEventListener('scroll',onScroll,{passive:true}); addEventListener('resize',onScroll); onScroll();
   addEventListener('ardholt:motion',function(){if(!motionOn()){words.forEach(function(w){w.classList.add('on')});if(bar)bar.style.transform='none'}else onScroll()});
 
