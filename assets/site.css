@@ -182,16 +182,17 @@ html.capture .rv,html.capture .lines .ln>span{transition:none!important}
   .scrolly{display:block;margin-top:40px}
   .stage{position:sticky;top:64px;height:44vh;z-index:3;overflow:visible;transition:top .4s var(--ease)}
   html:has(.top.th-away:not(:focus-within)) .stage{top:12px}
-  .stage canvas{border-radius:4px}
+  .stage canvas{border-radius:4px 4px 0 0}
   /* while the stage is pinned: nothing shows above it, and text fades out as it rises toward its lower edge */
   .stage::before,.stage::after{content:"";position:absolute;left:calc(-1 * var(--gutter));right:calc(-1 * var(--gutter));pointer-events:none;opacity:0;transition:opacity .25s var(--ease)}
   .stage::before{bottom:100%;height:100vh;background:var(--bg)}
   .stage::after{top:100%;height:96px;background:linear-gradient(var(--bg) 0%,rgba(11,10,10,.92) 28%,rgba(11,10,10,.55) 62%,rgba(11,10,10,0) 100%)}
   .stage.stuck::before,.stage.stuck::after{opacity:1}
-  .stage-label{position:static;margin:0;padding:10px 14px 0;font-size:11px}
+  .stage-label{position:static;margin:0;padding:10px 14px 12px;font-size:11px;line-height:1.4;align-items:baseline;border-top:1px solid var(--line)}
   .rail{display:none}
-  .stage{display:flex;flex-direction:column}
-  .stage canvas{position:relative;flex:1;height:auto}
+  /* explicit rows: the scene takes the space above, the label its own padded row (one or two lines); nothing can overflow the frame */
+  .stage{display:grid;grid-template-rows:minmax(0,1fr) auto}
+  .stage canvas{position:relative;inset:auto;width:100%;height:100%;min-height:0}
   .step{min-height:0;padding:40px 0 28px;opacity:1}
   .step .k{font-size:32px}
   .foot .g{grid-template-columns:auto 1fr}.foot .links{grid-column:1/-1;flex-direction:row;flex-wrap:wrap;gap:18px;text-align:left}

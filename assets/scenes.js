@@ -20,7 +20,7 @@ var TAU=Math.PI*2;
 /* Draw: every primitive registers its box (id, kind, scene) so the harness can check overlaps, margins and size steps. */
 function Draw(ctx){this.c=ctx;this.els=[];this.s='';this.clip=null}
 Draw.prototype={
-  reg:function(id,k,x,y,w,h,a,text){if(a<=.02)return;var cl=this.clip;if(cl){var x2=Math.min(x+w,cl[0]+cl[2]),y2=Math.min(y+h,cl[1]+cl[3]);x=Math.max(x,cl[0]);y=Math.max(y,cl[1]);w=x2-x;h=y2-y;if(w<=0||h<=0)return}this.els.push({id:id,k:k,s:this.s,x:x,y:y,w:w,h:h,text:text||''})},
+  reg:function(id,k,x,y,w,h,a,text){if(a<=.02)return;var cl=this.clip;if(cl){var x2=Math.min(x+w,cl[0]+cl[2]),y2=Math.min(y+h,cl[1]+cl[3]);x=Math.max(x,cl[0]);y=Math.max(y,cl[1]);w=x2-x;h=y2-y;if(w<=0||h<=0)return}this.els.push({id:id,k:k,s:this.s,x:x,y:y,w:w,h:h,a:a,text:text||''})},
   font:function(size,serif){var c=this.c;c.font=size+'px '+(serif?SERIF:MONO);if('letterSpacing' in c)c.letterSpacing=((TRACK[size]||0)*size)+'px'},
   measure:function(str,size,serif){this.font(size,serif);return this.c.measureText(str).width},
   /* text anchored at its top-left (align right/center moves the anchor); the registered box is the em box */
@@ -36,8 +36,9 @@ Draw.prototype={
   /* polyline; registers the box of its points */
   path:function(id,pts,o){o=o||{};var a=o.a==null?1:o.a;if(a<=.001||pts.length<2)return;var c=this.c,x0=1e9,y0=1e9,x1=-1e9,y1=-1e9;c.globalAlpha=a;c.lineWidth=o.w||1;c.strokeStyle=o.col||C.ink;if(o.dash)c.setLineDash(o.dash);c.beginPath();
     for(var i=0;i<pts.length;i++){var p=pts[i];if(i)c.lineTo(p[0],p[1]);else c.moveTo(p[0],p[1]);if(p[0]<x0)x0=p[0];if(p[0]>x1)x1=p[0];if(p[1]<y0)y0=p[1];if(p[1]>y1)y1=p[1]}
-    c.stroke();if(o.dash)c.setLineDash([]);c.globalAlpha=1;var lw=c.lineWidth;this.reg(id,'el',x0-lw/2,y0-lw/2,x1-x0+lw,y1-y0+lw,a)},
+    c.stroke();if(o.dash)c.setLineDash([]);c.globalAlpha=1;var lw=c.lineWidth;this.reg(id,'el',x0-lw/2,y0-lw/2,x1-x0+lw,y1-y0+lw,a);var R=this.els[this.els.length-1];if(R&&R.id===id)R.pts=pts.map(function(p){return [p[0],p[1]]})},
   /* quadratic curve sampled as a polyline (so its box is honest) */
+  cubic:function(id,p0,p1,p2,p3,o,upto){var pts=[],n=32,m=upto==null?1:upto;for(var i=0;i<=n;i++){var s=i/n*m,q=1-s,A=q*q*q,B=3*q*q*s,Cc=3*q*s*s,D=s*s*s;pts.push([A*p0[0]+B*p1[0]+Cc*p2[0]+D*p3[0],A*p0[1]+B*p1[1]+Cc*p2[1]+D*p3[1]])}this.path(id,pts,o)},
   quad:function(id,x1,y1,cx,cy,x2,y2,o,upto){var pts=[],n=24,m=upto==null?1:upto;for(var i=0;i<=n;i++){var s=i/n*m,q=1-s;pts.push([q*q*x1+2*q*s*cx+s*s*x2,q*q*y1+2*q*s*cy+s*s*y2])}this.path(id,pts,o)}
 };
 
@@ -45,7 +46,7 @@ Draw.prototype={
 function swapTL(tl,c,cycle){var n=tl.length,k=n-1;for(var i=0;i<n;i++)if(c>=tl[i][0])k=i;var cur=tl[k],prev=tl[(k-1+n)%n],next=tl[(k+1)%n];
   var since=c-cur[0],until=(k===n-1?cycle:next[0])-c,a=1,dy=0;
   if(prev[1]!==cur[1]&&since<.15){var q=E.out(since/.15);a=q;dy=4*(1-q)}
-  if(next[1]!==cur[1]&&until<.15){var q2=E.in(1-until/.15);a*=1-q2;dy=-4*q2}
+  if(next[1]!==cur[1]&&until<.15){var q2=E.in(1-until/.15);a*=1-q2}
   return {text:cur[1],a:a,dy:dy}}
 
 var SC={}, ORDER=['voice','agents','knowledge','console','platform','data','infra','assurance'];
@@ -80,7 +81,7 @@ Inst.prototype={
     else if(s.mode==='in'){if(s.hold>0){s.hold-=dt;if(s.hold>0)return}s.pres=u(s.pres+dt/.6);s.xq=u((s.xq||0)-dt/.6);if(s.pres>=1){s.mode='on';s.xq=0}}
     else if(s.mode==='out'){s.mode='in';s.pulsed=false}},
   /* the grid every scene draws on */
-  grid:function(){var W=this.W,H=this.H,s=this.shown,x0=W*.07,x1=W*.93,y0=H*.09,y1=H*.9,cw=x1-x0,ch=y1-y0,self=this,d=this.d;
+  grid:function(){var W=this.W,H=this.H,s=this.shown,x0=W*.07,x1=W*.93,yc=H*.09,y0=yc+(W<560?16:0),y1=H*.9,cw=x1-x0,ch=y1-y0,self=this,d=this.d;
     var now=this.clock(),def=SC[s.name],pres=s.pres,mode=s.mode,t=this.ft!=null?this.ft:!this.motion()?def.settled:Math.max(0,(now-s.start)/1000);
     var e=mode==='on'?function(){return 1}:function(i){var te=pres*.6;return E.out(u((te-.04*i)/(.6-.04*i)))};
     var x=E.in(s.xq||0);
@@ -90,20 +91,23 @@ Inst.prototype={
     /* eased state value for hover and the like */
     g.ease=function(key,target,rate){var v=st[key]==null?target:st[key];v+=(target-v>0?1:-1)*Math.min(Math.abs(target-v),self.dt*rate);st[key]=v;return v};
     /* readouts: top-left and top-right; on narrow stages the right one drops under the left */
-    g.caps=function(left,right){var a=e(1)*(1-x),dy=6*(1-e(1))+6*x,rs=g.rs;d.text('tl',left,x0,y0,{size:rs,col:C.ink2,a:a,dy:dy});
+    /* readouts sit at the top margin (yc); on narrow stages the right one drops under the left and the content area (y0) starts one line lower */
+    g.caps=function(left,right){var a=e(1)*(1-x),dy=6*(1-e(1)),rs=g.rs; /* readouts rise in on entrance and fade in place on exit, never drifting into the content */d.text('tl',left,x0,yc,{size:rs,col:C.ink2,a:a,dy:dy});
       var sw=typeof right==='string'?{text:right,a:1,dy:0}:swapTL(right,g.c,def.cycle);var o={size:rs,col:C.mute,a:a*sw.a,dy:dy+sw.dy};var w;
-      if(g.narrow){o.align='left';w=d.text('tr',sw.text,x0,y0+rs+6,o);return {x:x0,y:y0+rs+6+o.dy,w:w,h:rs}}o.align='right';w=d.text('tr',sw.text,x1,y0,o);return {x:x1-w,y:y0+o.dy,w:w,h:rs}};
+      if(g.narrow){o.align='left';w=d.text('tr',sw.text,x0,yc+rs+6,o);return {x:x0,y:yc+rs+6+o.dy,w:w,h:rs}}o.align='right';w=d.text('tr',sw.text,x1,yc,o);return {x:x1-w,y:yc+o.dy,w:w,h:rs}};
     /* a state-driven reading (hover): old text leaves before the new arrives */
     g.swapS=function(key,text){var r=st[key];if(!r){r=st[key]={text:text,t0:-9,old:null}}if(r.text!==text){r.old=r.text;r.text=text;r.t0=g.now}var since=g.now-r.t0;
-      if(since<.15&&r.old)return {text:r.old,a:1-E.in(since/.15),dy:-4*E.in(since/.15)};var q=E.out(u((since-.15)/.15));return {text:r.text,a:q,dy:4*(1-q)}};
+      if(since<.15&&r.old)return {text:r.old,a:1-E.in(since/.15),dy:0};var q=E.out(u((since-.15)/.15));return {text:r.text,a:q,dy:4*(1-q)}};
     /* bottom line in mute 10 px, wrapped at sentence ends when it does not fit; anchored to the bottom margin; returns its top */
+    g.bottomTop=function(text){var n=1;if(d.measure(text,10)>cw){n=0;var parts=text.split('. '),cur='';parts.forEach(function(p,i){p=i<parts.length-1?p+'.':p;var tryS=cur?cur+' '+p:p;if(cur&&d.measure(tryS,10)>cw){n++;cur=p}else cur=tryS});if(cur)n++}return y1-n*LH+(LH-10)/2-6};
     g.bottom=function(id,text){var lines=[text];if(d.measure(text,10)>cw){lines=[];var parts=text.split('. '),cur='';parts.forEach(function(p,i){p=i<parts.length-1?p+'.':p;var tryS=cur?cur+' '+p:p;if(cur&&d.measure(tryS,10)>cw){lines.push(cur);cur=p}else cur=tryS});if(cur)lines.push(cur)}
-      var top=y1-lines.length*LH+(LH-10)/2,a=e(2)*(1-x),dy=-6*(1-e(2))-6*x;lines.forEach(function(l,i){d.text(id+(i||''),l,x0,top+i*LH,{col:C.mute,a:a,dy:dy})});return top-6};
+      var top=y1-lines.length*LH+(LH-10)/2,a=e(2)*(1-x),dy=-6*(1-e(2)); /* fades in place on exit */lines.forEach(function(l,i){d.text(id+(i||''),l,x0,top+i*LH,{col:C.mute,a:a,dy:dy})});return top-6};
     return g},
   draw:function(){var c=this.ctx,d=this.d;c.setTransform(this.dpr,0,0,this.dpr,0,0);c.clearRect(0,0,this.W,this.H);d.els=[];d.clip=null;c.lineCap='butt';
-    var s=this.shown;if(s&&(s.mode!=='in'||!(s.hold>0))){var g=this.grid();d.s=s.name;SC[s.name].draw(g,g.c)}
+    /* the hand-off wipe is drawn first, beneath the scenes, so text always sits on top of it */
     if(this.pulse>=0){var q=this.pulse/.3,x0=this.W*.07,x1=this.W*.93,y=this.H*.495,head=lerp(x0,x1,q),tail=Math.max(x0,head-(x1-x0)*.22);d.s='stage';
       var gr=c.createLinearGradient(tail,0,head,0);gr.addColorStop(0,rgba(INK,0));gr.addColorStop(1,rgba(INK,.9));c.fillStyle=gr;c.fillRect(tail,y,head-tail,1);d.reg('pulse','el',tail,y,head-tail,1,1)}
+    var s=this.shown;if(s&&(s.mode!=='in'||!(s.hold>0))){var g=this.grid();d.s=s.name;SC[s.name].draw(g,g.c)}
     return d.els},
   tick:function(now){var dt=this.last<0?0:Math.min(.1,(now-this.last)/1000);this.last=now;this.advance(dt);this.draw()},
   loop:function(){var self=this;if(this.manual)return;cancelAnimationFrame(this.raf);this.raf=0;this.last=-1;if(!this.inView)return;if(!this.motion()){if(this.fresh){this.fresh=false;this.settle()}return}this.fresh=false;
@@ -146,13 +150,13 @@ SC.voice={n:'01',cycle:9,settled:2,beats:[[0,'system speaks',.3],[2,'settled',0]
   SC.agents={n:'02',cycle:11,settled:3,beats:[[0,'first brief leaves',0],[1.6,'plan',0],[3,'settled · decision reached',0],[5.4,'first delivery',0],[7.1,'return from PROVE',0],[9.2,'retry proven',0]],
     draw:function(g,c){var d=g.d,e=g.e,x=g.x,t=g.t,fade=1-x,y=g.row(6.2),xs=[1,3.5,6,8.5,11].map(g.col),gx=xs[1],gy=g.row(2.6);
       d.line('rail',xs[0],y,lerp(xs[0],xs[4],e(0)),y,{col:C.faint,a:fade});
-      d.quad('ret',xs[3],y+R,(xs[2]+xs[3])/2,y+R+g.ch*.3,xs[2],y+R,{col:C.faint,dash:[3,5],a:e(1)*fade},e(1));
+      d.quad('ret',xs[3],y-R,(xs[2]+xs[3])/2,y-R-g.ch*.3,xs[2],y-R,{col:C.faint,dash:[3,5],a:e(1)*fade},e(1)); /* the return loops above the rail, clear of the names */
       d.line('stem',gx,y-R,gx,lerp(y-R,gy+12,e(1)),{col:C.faint,a:fade});
       /* cards of the current and previous cycle; counter and in-flight count from the same schedule */
       var cur=g.n,inflight=0,delivered=1184+4*Math.max(0,cur-1),atDec=0,hov=g.p.on?g.p.b:0,px=g.p.x*g.cw+g.x0,py=g.p.y*g.ch+g.y0;
       for(var m=Math.max(0,cur-1);m<=cur;m++)for(var k=0;k<4;k++){var P=PLANS[k],tau=t-(m*11+k*1.5);if(tau<0)continue;if(tau>=P.D){delivered++;if(tau>P.D+.35)continue}else inflight++;
         var acc=0,cx=xs[0],cy=y,col=C.ink;for(var i=0;i<P.segs.length;i++){var s=P.segs[i];if(tau<acc+s[0]){var f=(tau-acc)/s[0];
-            if(s[3]==='ret'){var q=E.move(f);cx=lerp(xs[3],xs[2],q);cy=y+R+Math.sin(q*Math.PI)*g.ch*.15;col=C.acc}
+            if(s[3]==='ret'){var q=E.move(f);cx=lerp(xs[3],xs[2],q);cy=y-Math.sin(q*Math.PI)*(R+g.ch*.15);col=C.acc}
             else if(s[3]==='dec'){var b=E.move(u(f/.3))-E.move(u((f-.65)/.3));cx=xs[1];cy=y-b*(y-gy-16);atDec=Math.max(atDec,b)}
             else{cx=lerp(xs[s[1]],xs[s[2]],E.move(f));cy=y}break}acc+=s[0]}
         var a=E.out(u(tau/.3)),ex=tau>=P.D?E.in(u((tau-P.D)/.35)):0;cx+=ex*10+x*12-(1-a)*8;
@@ -172,7 +176,7 @@ SC.voice={n:'01',cycle:9,settled:2,beats:[[0,'system speaks',.3],[2,'settled',0]
   for(var i=0;i<420;i++){var ci=i%6,cc=CENT[ci],a=r()*TAU,rr=Math.pow(r(),.6);K.push([cc[0]+Math.cos(a)*rr*.13,cc[1]+Math.sin(a)*rr*.16,ci])}
   K.forEach(function(p,i){var n=0;for(var j=i+1;j<K.length&&n<2;j++){if(Math.hypot(p[0]-K[j][0],p[1]-K[j][1])<.045){KE.push([i,j]);n++}}});
   SC.knowledge={n:'03',cycle:12,settled:4,beats:[[0,'query roams',0],[2,'',0],[4,'settled',0],[6,'',0],[8,'',0],[10,'',0]],
-    draw:function(g,c){var d=g.d,e=g.e,x=g.x,fade=1-x,fx=g.x0,fw=g.cw,fy=g.row(1.3),fh=g.row(8.6)-fy,ph=g.t/12*TAU;
+    draw:function(g,c){var d=g.d,e=g.e,x=g.x,fade=1-x,fx=g.x0,fw=g.cw,fy=g.row(1.3),rankTop=Math.min(g.row(9.7),g.y1-40)-16,fh=Math.min(g.row(8.6),rankTop-10)-fy,ph=g.t/12*TAU;
       var qx=lerp(fx+fw*(.5+.42*Math.sin(ph)),g.p.x*g.cw+g.x0,g.p.b),qy=lerp(fy+fh*(.5+.38*Math.sin(2*ph+1.1)),g.p.y*g.ch+g.y0,g.p.b);
       var P=K.map(function(p){return [fx+p[0]*fw,fy+p[1]*fh]}),ds=P.map(function(p,i){return [Math.hypot(p[0]-qx,p[1]-qy),i]}).sort(function(a,b){return a[0]-b[0]});
       var d16=ds[15][0],m=d16*.3,hot={};ds.forEach(function(s,k){var h=u((d16+m-s[0])/m);if(h>0)hot[s[1]]=[h,k]});
@@ -185,7 +189,7 @@ SC.voice={n:'01',cycle:9,settled:2,beats:[[0,'system speaks',.3],[2,'settled',0]
       var rx0=Math.max(fx,qx-d16),ry0=Math.max(fy,qy-d16);d.reg('retrieval','el',rx0,ry0,Math.min(fx+fw,qx+d16)-rx0,Math.min(fy+fh,qy+d16)-ry0,e(3)*fade);
       d.ring('q',qx,qy,6,{col:C.acc,a:e(2)*fade,to:e(2)});
       /* ranked answers, bottom right */
-      var lx=g.col(8.5),lw=g.col(12)-lx,ly=g.row(9.7),la=e(4)*fade;d.text('ranked','RANKED',lx,ly-16,{col:C.mute,a:la,dy:6*(1-e(4))});
+      var lx=g.col(8.5),lw=g.col(12)-lx,ly=Math.min(g.row(9.7),g.y1-40),la=e(4)*fade;d.text('ranked','RANKED',lx,ly-16,{col:C.mute,a:la,dy:6*(1-e(4))});
       for(var k=0;k<5;k++){var sc=u(1-ds[k][0]/(2.2*d16)),by=ly+k*9;d.rect('trk-'+k,lx,by,lw,2,{fill:C.line,a:la});d.rect('bar-'+k,lx,by,lw*sc*fade*e(4),2,{fill:k?C.ink2:C.acc,a:la})}
       g.caps('RECORDS · 420 · LINKED',g.p.on?'QUERY · POINTER':'QUERY · ROAMING')}};
 })();
@@ -193,15 +197,17 @@ SC.voice={n:'01',cycle:9,settled:2,beats:[[0,'system speaks',.3],[2,'settled',0]
 /* 04 Console: one job on the client's own channel. REQUEST, CLARIFY, IN PROGRESS, DELIVERED arrive as a message thread,
    each card rising into its slot from below; the thread scrolls up and out at the end. Cards move upward only. */
 SC.console={n:'04',cycle:12,settled:9,beats:[[0,'request',.6],[1.5,'clarify',.6],[3.5,'in progress',.6],[6,'progress',0],[8.5,'delivered',.6],[9,'settled',0],[10.5,'thread scrolls out',1.5]],
-  draw:function(g,c){var d=g.d,e=g.e,x=g.x,fade=1-x,rh=g.ch/12,hC=2.05*rh,gap=.35*rh,top=g.row(1.4),lx=g.col(.4),w=g.cw*7.4/12,T=[['REQUEST',0],['CLARIFY',1.5],['IN PROGRESS',3.5],['DELIVERED',8.5]];
+  draw:function(g,c){var d=g.d,e=g.e,x=g.x,fade=1-x,rh=g.ch/12,hC=2.05*rh,gap=.35*rh,top=g.row(1.4),compact=hC<46,lx=g.col(.4),w=g.cw*7.4/12,T=[['REQUEST',0],['CLARIFY',1.5],['IN PROGRESS',3.5],['DELIVERED',8.5]];
     var out=E.move(u((c-10.5)/1.5)),lift=out*(g.row(11.2)-top),outA=1-E.in(u((c-10.5)/1.5)),curI=-1;T.forEach(function(k,i){if(c>=k[1])curI=i});
     d.line('rule',lx,top,lx,lerp(top,g.row(11.2),e(0)),{col:C.line,a:fade});
     var px=g.p.x*g.cw+g.x0,py=g.p.y*g.ch+g.y0;var ct=g.row(1.2);d.clip=[g.x0,ct,g.cw,g.y1-ct];d.c.save();d.c.beginPath();d.c.rect(g.x0,ct,g.cw,g.y1-ct);d.c.clip();
     T.forEach(function(k,i){if(c<k[1])return;var en=E.out(u((c-k[1])/.6)),y=top+i*(hC+gap)+(1-en)*rh-lift-x*rh*.6,cx=i%2?g.col(12)-w:g.col(1),a=en*outA*fade*e(1);
       var hv=g.ease('h'+i,g.p.on&&px>cx&&px<cx+w&&py>y&&py<y+hC?g.p.b:0,5);y-=2*hv;
-      d.rect('card-'+i,cx,y,w,hC,{fill:C.line,r:4,a:a});d.text('ttl-'+i,k[0],cx+14,y+12,{size:14,col:C.ink2,a:a});
+      d.rect('card-'+i,cx,y,w,hC,{fill:C.line,r:4,a:a});
+      if(compact){d.text('ttl-'+i,k[0],cx+12,y+(i===2?6:(hC-12)/2),{size:12,col:C.ink2,a:a});if(i===2){var pr=u((c-3.5)/5);d.rect('prog-t',cx+12,y+hC-7,w-24,2,{fill:C.faint,a:a});d.rect('prog',cx+12,y+hC-7,(w-24)*pr,2,{fill:C.ink2,a:a})}}
+      else{d.text('ttl-'+i,k[0],cx+14,y+12,{size:14,col:C.ink2,a:a});
       d.rect('ln-'+i+'a',cx+14,y+32,(w-28)*.62,2,{fill:C.mute,a:a});d.rect('ln-'+i+'b',cx+14,y+37,(w-28)*.4,2,{fill:C.mute,a:a});
-      if(i===2){var pr=u((c-3.5)/5);d.rect('prog-t',cx+14,y+hC-8,w-28,2,{fill:C.faint,a:a});d.rect('prog',cx+14,y+hC-8,(w-28)*pr,2,{fill:C.ink2,a:a})}
+      if(i===2){var pr=u((c-3.5)/5);d.rect('prog-t',cx+14,y+hC-8,w-28,2,{fill:C.faint,a:a});d.rect('prog',cx+14,y+hC-8,(w-28)*pr,2,{fill:C.ink2,a:a})}}
       d.dot('dot-'+i,lx,y+hC/2,1.5,i===curI?C.acc:C.ink2,a)});
     d.c.restore();d.clip=null;
     g.caps("ONE JOB · ON THE CLIENT'S OWN CHANNEL",[[0,'IN PLAIN LANGUAGE'],[8.5,'DELIVERED · WITH EVIDENCE']])}};
@@ -223,13 +229,23 @@ SC.platform={n:'05',cycle:11,settled:5,beats:[[0,'nav, sidebar',.6],[1,'tiles',1
     var sw=g.narrow?0:g.cw*.2*(1-u(f/.5)),as=part(.5)*(1-u(f/.4)),cy=ny+nH+p,cx=fx+p+(sw>0?sw+p:0),cw2=fw-2*p-(sw>0?sw+p:0);
     if(sw>1){d.rect('side',fx+p,cy,sw,fh-nH-3*p,{fill:C.line,r:4,a:as*fade});for(var i=0;i<5;i++)d.rect('side-'+i,fx+2*p,cy+p+6+i*14,sw*.6,2,{fill:C.mute,a:as*fade})}
     /* three KPI tiles: down first (uA), then across (uB) */
-    var uA=u(f/.5),uB=u((f-.5)/.5),th=Math.max(1.3*rh,2*p+38),tg=.2*rh,third=(cw2-2*tg)/3,V=['4.2k','38 ms','99.98'],L=['THROUGHPUT','LATENCY','UPTIME'];
-    for(var k=0;k<3;k++){var ak=part(1+k*.2),tx=lerp(cx+k*(third+tg),cx,uB),tw=lerp(third,cw2,uB),ty=cy+k*(th+tg)*uA-4*(1-ak);
-      d.rect('kpi-'+k,tx,ty,tw,th,{fill:C.line,r:4,a:ak*fade});d.text('kpi-l-'+k,L[k],tx+p,ty+p,{col:C.mute,a:ak*fade});d.text('kpi-v-'+k,V[k],tx+p,ty+th-p-26,{size:24,serif:true,col:C.ink,a:ak*fade})}
+    var uA=u(f/.5),uB=u((f-.5)/.5),th0=Math.max(1.3*rh,2*p+38),tg=.2*rh,third=(cw2-2*tg)/3,V=['4.2k','38 ms','99.98'],L=['THROUGHPUT','LATENCY','UPTIME'];
+    /* responsive tiles: on short stages the stacked tiles size themselves to the space left after the chart; values scale to their tile;
+       a label shows only while its tile can hold it clear of the value, and fades when it cannot */
+    var rowsH=4*.42*rh+3*.12*rh,inH=fy+fh-p-cy,shortS=(3*th0+4*tg+2*rh+rowsH)>inH,chh=shortS?lerp(2*rh,1.2*rh,uA):2*rh,
+      ths=Math.max(20,Math.min(th0,(inH-4*tg-1.2*rh-rowsH)/3)),th=shortS?lerp(th0,ths,uA):th0;
+    var lwMax=Math.max.apply(null,L.map(function(l){return d.measure(l,10)})),twK=lerp(third,cw2,uB);
+    for(var k=0;k<3;k++){var ak=part(1+k*.2),tx=lerp(cx+k*(third+tg),cx,uB),tw=twK,ty=cy+k*(th+tg)*uA-4*(1-ak),
+        vs=Math.max(9,Math.min(24,(tw-2*p)*24/Math.max(1,d.measure(V[k],24,true)),th-2*p));
+      var vw=d.measure(V[k],vs,true),room=th-(2*p+12+vs),side=tw>=lwMax+vw+3*p,sb=side?u(-room/6):0,
+        stackA=u((room+1)/2)*u((tw-(lwMax+2*p))/4+1),sideA=side?u((sb-.5)/.5):0,useSide=sideA>0;
+      d.rect('kpi-'+k,tx,ty,tw,th,{fill:C.line,r:4,a:ak*fade});
+      d.text('kpi-l-'+k,L[k],tx+p,useSide?ty+(th-10)/2:ty+p,{col:C.mute,a:ak*fade*(useSide?sideA:stackA)});
+      d.text('kpi-v-'+k,V[k],lerp(tx+p,tx+tw-p-vw,E.move(u(sb/.5))),lerp(ty+th-p-vs,ty+(th-vs)/2,E.move(u((sb-.5)/.5))),{size:vs,serif:true,col:C.ink,a:ak*fade})}
     /* chart with a live line, then four table rows */
-    var chy=cy+th+(th+tg)*2*uA+tg,chh=2*rh,ac=part(1.9);d.rect('chart',cx,chy,cw2,chh,{fill:C.line,r:4,a:ac*fade});
+    var chy=cy+th+(th+tg)*2*uA+tg,ac=part(1.9);d.rect('chart',cx,chy,cw2,chh,{fill:C.line,r:4,a:ac*fade});
     var pts=[],n=48;for(var i=0;i<=n;i++){var q=i/n;pts.push([cx+p+q*(cw2-2*p),chy+chh-p-(.5+.3*Math.sin(q*5-t*1.2)+.15*Math.sin(q*13-t*2.3))*(chh-2*p)*.8])}d.path('chart-ln',pts,{col:C.ink,a:ac*fade});
-    var ry=chy+chh+tg,rrh=.42*rh;for(var i=0;i<4;i++){var ar=part(2.4+i*.1),yy=ry+i*(rrh+.12*rh);d.rect('row-'+i,cx,yy,cw2,rrh,{fill:i%2?C.faint:C.line,a:ar*fade*.7});d.rect('row-'+i+'a',cx+p,yy+rrh/2-1,cw2*.3,2,{fill:C.mute,a:ar*fade});d.rect('row-'+i+'b',cx+cw2*.55,yy+rrh/2-1,cw2*.15,2,{fill:C.mute,a:ar*fade})}
+    var ry=chy+chh+tg,rrh=.42*rh;for(var i=0;i<4;i++){var yy=ry+i*(rrh+.12*rh),ar=part(2.4+i*.1)*u((fy+fh-p-(yy+rrh))/rrh+1);d.rect('row-'+i,cx,yy,cw2,rrh,{fill:i%2?C.faint:C.line,a:ar*fade*.7});d.rect('row-'+i+'a',cx+p,yy+rrh/2-1,cw2*.3,2,{fill:C.mute,a:ar*fade});d.rect('row-'+i+'b',cx+cw2*.55,yy+rrh/2-1,cw2*.15,2,{fill:C.mute,a:ar*fade})}
     d.c.restore();d.clip=null;
     g.caps(Math.round(lerp(1440,390,f))+' PX',[[0,'ASSEMBLING'],[3.2,'HOLDS ITS SHAPE'],[8.2,'SAME PRODUCT · SAME ORDER']])}};
 
@@ -238,16 +254,19 @@ SC.platform={n:'05',cycle:11,settled:5,beats:[[0,'nav, sidebar',.6],[1,'tiles',1
 (function(){
   var r=rnd(3),ROWS=[];for(var i=0;i<12;i++)ROWS.push({bad:i===6||i===11,segs:[.15+r()*.2,.12+r()*.22,.1+r()*.18],gaps:[.03+r()*.05,.03+r()*.05],jit:[r()*3-1.5,r()*3-1.5,r()*3-1.5]});
   SC.data={n:'06',cycle:6,settled:2.5,beats:[[0,'',0],[1.2,'row 12 drops',.8],[2.5,'settled',0],[3.7,'row 07 drops',.8],[4.5,'',0],[5.4,'',0]],
-    draw:function(g,c){var d=g.d,e=g.e,x=g.x,fade=1-x,t=g.t,gx=g.col(6),rw=g.cw*2.6/12,travel=g.cw-rw,phC=(g.cw/2-rw/2)/travel,trayY=g.row(9.9),trayX=g.col(6.4),px=g.p.x*g.cw+g.x0,py=g.p.y*g.ch+g.y0;
+    draw:function(g,c){var d=g.d,e=g.e,x=g.x,fade=1-x,t=g.t,gx=g.col(6),rw=g.cw*2.6/12,travel=g.cw-rw,phC=(g.cw/2-rw/2)/travel,trayY=Math.min(g.row(9.9),g.bottomTop('NEVER GUESSED. EVERY EXCEPTION NAMED.')-34),trayX=g.col(6.4),px=g.p.x*g.cw+g.x0,py=g.p.y*g.ch+g.y0;
       d.line('val',gx,g.row(1),gx,lerp(g.row(1),g.row(9.2),e(0)),{col:C.acc45,a:fade});
       d.clip=[g.x0,g.y0,g.cw,g.ch];d.c.save();d.c.beginPath();d.c.rect(g.x0,g.y0,g.cw,g.ch);d.c.clip();
       ROWS.forEach(function(R,i){var ph=((t+2.12+i*.5)/6)%1,y=g.row(1.3+i*.63),lx=g.x0+ph*travel+x*g.cw*.3,xc=lx+rw/2,a=E.out(u(ph/.05))*(1-E.in(u((ph-.95)/.05)))*e(1)*fade;
         var m=E.move(u((xc-gx)/(g.cw*.05)+.5)),id='row-'+i,ly=y,col=C.mute,dropped=0;          /* m: morph from irregular to typed */
-        if(R.bad&&xc>=gx){var td=(ph-phC)*6,k=E.move(u(td/.8));dropped=k;lx=lerp(gx-rw/2,trayX,k);ly=lerp(y,trayY,E.move(u(td/.8)));a=E.out(u(ph/.05))*(1-E.in(u((td-2.1)/.35)))*e(1)*fade;m=0;col=k>.5?C.acc:C.acc45}
+        /* an exception narrows to a flagged chip in its own lane (the lane below is always ahead, so the column under its left edge is clear),
+           drops through that column to the tray, then slides along the tray: it never crosses another row */
+        var shrink=1;if(R.bad&&xc>=gx){var td=(ph-phC)*6,s1=E.move(u(td/.2)),s2=E.move(u((td-.2)/.6)),s3=E.move(u((td-.8)/.3)),tot=R.segs[0]+R.segs[1]+R.segs[2]+R.gaps[0]+R.gaps[1];
+          shrink=lerp(1,.035*g.cw/(tot*rw),s1);dropped=s3;lx=lerp(gx-rw/2,trayX,s3);ly=lerp(y,trayY,s2);a=E.out(u(ph/.05))*(1-E.in(u((td-2.1)/.35)))*e(1)*fade;m=0;col=s2>.5?C.acc:C.acc45}
         if(a<=.02)return;var cx=lx,W=[.38,.28,.2],G=[.04,.04],X0=1e9,X1=-1e9;
-        for(var s=0;s<3;s++){var w=lerp(R.segs[s],W[s],m)*rw,jy=lerp(R.jit[s],0,m),bad=R.bad&&s===1&&!dropped,sc=bad?C.acc45:m>.5?C.ink2:col;
-          d.rect(id+'-'+s,cx,ly+jy-2,w,4,{fill:sc,a:a});X0=Math.min(X0,cx);X1=Math.max(X1,cx+w);cx+=w+lerp(R.gaps[s]||.04,G[s]||.04,m)*rw}
-        if(dropped>=1){if(g.narrow)d.text('flag-'+i,'FLAG · ROW '+pad(i+1,2),X0,ly-16,{col:C.acc,a:a});else d.text('flag-'+i,'FLAG · ROW '+pad(i+1,2),X1+10,ly-5,{col:C.acc,a:a})}
+        for(var s=0;s<3;s++){var w=lerp(R.segs[s],W[s],m)*rw*shrink,jy=lerp(R.jit[s],0,m)*shrink,bad=R.bad&&s===1&&shrink>=1,sc=bad?C.acc45:m>.5?C.ink2:col;
+          d.rect(id+'-'+s,cx,ly+jy-2,w,4,{fill:sc,a:a});X0=Math.min(X0,cx);X1=Math.max(X1,cx+w);cx+=w+lerp(R.gaps[s]||.04,G[s]||.04,m)*rw*shrink}
+        if(dropped>=1)d.text('flag-'+i,'FLAG · ROW '+pad(i+1,2),X1+10,ly-5,{col:C.acc,a:a}); /* beside the chip, on the tray */
         if(g.p.on&&!dropped&&py>y-8&&py<y+8&&px>X0&&px<X1)d.text('hov-'+i,'ROW '+pad(i+1,2),X0,y-16,{col:C.ink2,a:a*g.p.b})});
       d.c.restore();d.clip=null;
       d.line('tray',g.col(6),trayY+8,lerp(g.col(6),g.col(12),e(0)),trayY+8,{col:C.faint,a:fade});d.text('tray-l','FOR A PERSON TO DECIDE',g.x1,trayY+14,{align:'right',col:C.mute,a:e(2)*fade,dy:6*(1-e(2))});
@@ -262,8 +281,19 @@ SC.infra={n:'07',cycle:12,settled:10,beats:[[0,'all sites serving',0],[4,'site B
     var blockTop=g.bottom('bottom','RUNS UNATTENDED. RECOVERS ON ITS OWN.');
     /* links, bypass arc and packets along whichever path is live */
     d.line('link-0',X[0][1],yl,X[1][0],yl,{col:C.faint,a:e(0)*fade*(1-w*.6)});d.line('link-1',X[1][1],yl,X[2][0],yl,{col:C.faint,a:e(0)*fade*(1-w*.6)});
-    var ax=X[0][1],bx=X[2][0],cxq=(ax+bx)/2,cyq=yl-2*(yl-apex);if(w>.02)d.quad('arc',ax,yl,cxq,cyq,bx,yl,{col:C.faint,dash:[3,4],a:w*fade});
-    for(var j=0;j<5;j++){var f=((t*.32+j*.2)+x*.6)%1,q=1-f,kx=lerp(lerp(ax,bx,f),q*q*ax+2*q*f*cxq+f*f*bx,w),ky=lerp(yl,q*q*yl+2*q*f*cyq+f*f*yl,w);d.dot('pk-'+j,kx,ky,1.5,C.ink,e(2)*fade)}
+    /* the bypass climbs in the gap left of site B, runs above the panel tops, and drops in the gap on its right */
+    var ax=X[0][1],bx=X[2][0],m1=(X[0][1]+X[1][0])/2,m2=(X[1][1]+X[2][0])/2,ytop=py-10,BP=[[ax,yl],[m1,yl],[m1,ytop],[m2,ytop],[m2,yl],[bx,yl]],BL=[0];
+    for(var i=1;i<BP.length;i++)BL.push(BL[i-1]+Math.hypot(BP[i][0]-BP[i-1][0],BP[i][1]-BP[i-1][1]));
+    function onBypass(f){var L=f*BL[BL.length-1];for(var i=1;i<BP.length;i++)if(L<=BL[i]){var r=(L-BL[i-1])/Math.max(1e-6,BL[i]-BL[i-1]);return [lerp(BP[i-1][0],BP[i][0],r),lerp(BP[i-1][1],BP[i][1],r)]}return BP[BP.length-1]}
+    var Lb=BL[BL.length-1],Ls=bx-ax,sB=m1-ax,inUse=0;
+    function wAt(cc){cc=((cc%12)+12)%12;var b=cc<4?1:cc<7.5?1-E.move(u((cc-4)/.4)):E.out(u((cc-7.5)/1.2));return 1-b}
+    for(var j=0;j<5;j++){var f=((t*.32+j*.2)+x*.6)%1,sd=f*Lb,kx,ky,ka=e(2)*fade;
+      if(sd<=sB){kx=ax+sd;ky=yl}
+      else{var tb=c-(f-sB/Lb)/.32,byp=wAt(tb)>=.5;
+        if(byp){var bp=onBypass(f);kx=bp[0];ky=bp[1];inUse=1}
+        else{kx=ax+Math.min(sd,Ls);ky=yl;ka*=1-u((sd-Ls)/8)}}
+      if(ka>.02)d.dot('pk-'+j,kx,ky,1.5,C.ink,ka)}
+    var arcA=Math.max(w,inUse*.6)*fade;if(arcA>.02)d.path('arc',BP,{col:C.faint,dash:[3,4],a:arcA});
     X.forEach(function(s,i){var x0=s[0],pw=s[1]-s[0],down=i===1&&w>.5,inside=g.p.on&&px>x0&&px<s[1]&&pyy>py&&pyy<py+ph,hv=g.ease('h'+i,inside?g.p.b:0,5),sum=0;
       d.rect('panel-'+i,x0,py,pw,ph,{stroke:down?C.acc45:C.faint,r:4,a:e(0)*fade});
       for(var k=0;k<4;k++){var base=.4+.22*Math.sin(t*.7+k*1.3+i*2.1)+.1*Math.sin(t*1.9+k),load=i===1?base*bf:Math.min(1,base+.3*w),by=py+ph*.42+k*ph*.13;sum+=load;
@@ -283,11 +313,16 @@ SC.infra={n:'07',cycle:12,settled:10,beats:[[0,'all sites serving',0],[4,'site B
     draw:function(g,c){var d=g.d,e=g.e,x=g.x,fade=1-x,pitch=.6*g.ch/12,y0=g.row(1.3),sw=u(c/5.5),sy=lerp(g.row(1),g.row(9),sw);
       var blockTop=g.bottom('bottom','SECRETS STAY. FAULTS ARE PLANTED ON PURPOSE. NOTHING SHIPS ON ASSURANCE.');
       var fl=(4+g.n*5)%13,leave=1-E.in(u((c-9.65)/.35)),fs=0;LN[fl].forEach(function(s,k){if(s[0]+s[1]<=.42)fs=k+1});fs=fs?fs-1:0;
+      /* where the finding and the signature will appear, the surrounding code steps back first */
+      var fyy=y0+fl*pitch,fsg=LN[fl][fs],fbx=g.x0+fsg[0]*g.cw,fbw=fsg[1]*g.cw,fpass=E.out(u((sy-fyy)/(pitch*.5))),fbo=fpass>=1?E.out(u((c-(fyy-g.row(1))/(g.row(9)-g.row(1))*5.5)/.35)):0;
+      var flw=d.measure('PLANTED FAULT · CAUGHT',10),ssx=g.x1-14,sscy=blockTop-20,slw=d.measure('INDEPENDENT VERIFIER · SIGNED',10);
+      var Z=[[fbx-7,fyy-9,fbw+14,18,u(fbo/.3)],[fbx+fbw+11,fyy-8,flw+6,16,u(fbo/.3)],[ssx-15,sscy-15,30,30,u((c-5.3)/.2)],[ssx-25-slw,sscy-8,slw+6,16,u((c-5.9)/.2)]];
+      function clear(bx,by,bw,bh,skip){var m=1;Z.forEach(function(z,zi){if(z[4]<=0||zi===skip)return;if(bx<z[0]+z[2]&&z[0]<bx+bw&&by<z[1]+z[3]&&z[1]<by+bh)m=Math.min(m,1-z[4])});return m}
       LN.forEach(function(segs,i){var y=y0+i*pitch,en=E.out(u((c-.03*i)/.3))*leave*e(1)*fade,passed=E.out(u((sy-y)/(pitch*.5)));
-        segs.forEach(function(s,k){var sx=g.x0+s[0]*g.cw,w=s[1]*g.cw,id='ln-'+i+'-'+k,yy=y-4*(1-en);
-          if(s[2]){var h=lerp(2,6,passed);d.rect(id,sx,yy-h/2,w,h,{fill:passed>.5?C.ink2:C.acc45,a:en})}else d.rect(id,sx,yy-1,w,2,{fill:passed>.5?C.mute:C.faint,a:en})});
-        if(i===fl&&passed>=1){var s=segs[fs],bx=g.x0+s[0]*g.cw,bw=s[1]*g.cw,bo=E.out(u((c-(y-g.row(1))/(g.row(9)-g.row(1))*5.5)/.35));
-          d.rect('fault',bx-4,y-6,bw+8,12,{stroke:C.acc,r:4,a:en*bo});d.text('fault-l','PLANTED FAULT · CAUGHT',bx+bw+14,y-5,{col:C.acc,a:en*bo,dx:-6*(1-bo)})}});
+        segs.forEach(function(s,k){var sx=g.x0+s[0]*g.cw,w=s[1]*g.cw,id='ln-'+i+'-'+k,yy=y-4*(1-en),self=i===fl&&k===fs;
+          if(s[2]){var h=lerp(2,6,passed);d.rect(id,sx,yy-h/2,w,h,{fill:passed>.5?C.ink2:C.acc45,a:en*clear(sx,yy-h/2,w,h,self?0:-1)})}else d.rect(id,sx,yy-1,w,2,{fill:passed>.5?C.mute:C.faint,a:en*clear(sx,yy-1,w,2,self?0:-1)})});
+        if(i===fl&&passed>=1){var bo=fbo,la=u((bo-.3)/.7);
+          d.rect('fault',fbx-4,y-6,fbw+8,12,{stroke:C.acc,r:4,a:en*la});d.text('fault-l','PLANTED FAULT · CAUGHT',fbx+fbw+14,y-5,{col:C.acc,a:en*la,dx:-6*(1-la)})}});
       if(c<5.85)d.line('sweep',g.x0,sy,g.x1,sy,{col:C.acc,a:E.out(u(c/.3))*(1-E.in(u((c-5.5)/.35)))*e(2)*fade});
       /* the verifier's seal: a ring drawing, then a tick, then the signature */
       var sx=g.x1-14,scy=blockTop-20,k1=E.out(u((c-5.5)/.6)),k2=E.out(u((c-6.1)/.2)),sa=leave*e(2)*fade;
