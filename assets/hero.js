@@ -319,8 +319,7 @@
     W=cv.clientWidth||1;H=cv.clientHeight||1;cv.width=Math.round(W*DPR);cv.height=Math.round(H*DPR);gl.viewport(0,0,cv.width,cv.height);sizeRT();
     narrow=innerWidth<=840; var g=parseFloat(getComputedStyle(hero).paddingLeft)||24;
     if(narrow){ /* the top band: under the 70px header, above the headline, inside the unmasked top 30% */
-      var top=80, bot=Math.min(H*0.37,(h1?h1.offsetTop:H*0.38)-12); room=bot-top>=90;
-      rect={cx:W/2,cy:(top+bot)/2,w:W-2*g,h:Math.max(1,bot-top)};
+      room=H>=60; rect={cx:W/2,cy:H*0.47,w:W-2*g,h:H*0.78}; /* the canvas is the band itself (site.css) */
     }else{ /* the right 55%, the headline at bottom left */
       var x0=W*0.47, x1=W-g, y0=Math.max(H*0.10,80), y1=H*0.86; room=true; rect={cx:(x0+x1)/2,cy:(y0+y1)/2-H*0.025,w:x1-x0,h:y1-y0};
     }
@@ -343,7 +342,7 @@
     if(on){var k=1-Math.exp(-dt*5);px+=(tx-px)*k;py+=(ty-py)*k;yawIdle=0.05*Math.sin(t*0.571)}  /* ≈0.03 rad/s peak */
     else{px=tx;py=ty;yawIdle=0}
     var hh=hero.offsetHeight||H; scrollP=Math.min(1,Math.max(0,scrollY/(hh*0.85)));
-    var fade=1-Math.min(1,Math.max(0,(scrollP-0.5)/0.5)); fade=fade*fade;
+    var fade=narrow?1-Math.min(1,Math.max(0,(scrollP-0.12)/0.4)):1-Math.min(1,Math.max(0,(scrollP-0.5)/0.5)); fade=fade*fade;
     var sink=ease(scrollP)*2.4, pull=1+0.5*ease(scrollP);
 
     /* camera: fixed distance for the frame, pitch orbits with the pointer, the object yaws toward it */
